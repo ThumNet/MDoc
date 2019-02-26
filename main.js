@@ -1,5 +1,9 @@
 var mDoc = {};
-mDoc.settings = { version: '0.2-alpha', debug: false };
+mDoc.settings = {
+    version: '0.2-alpha', 
+    startMdFile: 'index.md',
+    debug: false
+};
 
 function init() {
     loadSettings();
@@ -131,7 +135,7 @@ function navigateToHashOrDefault() {
         return;
     }
 
-    loadMarkdown('markdown-sample.md');
+    loadMarkdown(mDoc.settings.startMdFile);
 }
 
 function initToc() {
@@ -141,7 +145,7 @@ function initToc() {
         contentSelector: '#doc',
         headingSelector: 'h1, h2, h3',
         collapseDepth: 3,
-        onClick: function(e) {
+        onClick: function (e) {
             return false;
         }
     });
