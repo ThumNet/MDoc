@@ -42,7 +42,7 @@ function renderApp() {
     app.innerHTML = `${renderNav()}
         <div class="container">
             <div class="row">
-                <div class="col-3">
+                <div id="sidebar" class="col-3">
                     <div class="is-position-fixed">
                         <p>Table of contents</p>
                         <nav class="toc js-toc "></nav>
@@ -101,12 +101,30 @@ function fetchStatusHandler(response) {
     }
 
     var error = new Error(response.statusText || response.status)
-    error.response = response
+    error.response = response;
     throw error;
 }
 
 function handleError(ex) {
-    alert(ex);
+    var app = document.getElementById('app');
+    app.classList.add('loaded');
+
+    var body = '';
+    if (ex.response) {
+        var res = ex.response;
+        var url = res.url.replace(window.origin, '');
+
+        body = `<p>The requested page <strong>${url}</strong> returned ${res.status} - ${res.statusText}</p>`;
+    }
+    else {
+        body = `<p>${ex.message}<p><pre>${ex.stack}</pre>`;
+    }
+
+    var doc = document.getElementById('doc');
+    doc.innerHTML = `<div class="alert alert-danger"><h4 class="alert-heading">Oops something went wrong...</h4>${body}</div>`;
+
+    document.getElementById('sidebar').classList.add('d-none');
+    document.getElementById('sidebar').classList.add('d-none');
 }
 
 function displayDocs(mdContent) {
@@ -115,7 +133,6 @@ function displayDocs(mdContent) {
 
     var doc = document.getElementById('doc');
     doc.innerHTML = marked(mdContent);
-
 
     setTimeout(initPrism, 1);
     if (mdContent.indexOf('```mermaid') !== -1) {
@@ -128,6 +145,9 @@ function displayDocs(mdContent) {
 
 
 function navigateToHashOrDefault() {
+    var app = document.getElementById('app');
+    app.classList.remove('loaded');
+
     var hash = location.hash;
     if (hash.indexOf('#!') === 0 && hash.length > 2) {
         var path = hash.substring(2);
@@ -149,6 +169,7 @@ function initToc() {
             return false;
         }
     });
+    document.getElementById('sidebar').classList.remove('d-none');
 }
 
 // var render = function (template, selector) {
