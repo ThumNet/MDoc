@@ -1,3 +1,10 @@
+*:-webkit-full-screen { background-color: #fff; }
+
+
+.mermaid { cursor: zoom-in; }
+.mermaid:not([data-processed]) { display: none; }
+.mermaid:-webkit-full-screen { cursor: zoom-out; }
+
 #app:not(.loaded) * { display: none; }
 
 /* TocBot */

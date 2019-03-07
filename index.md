@@ -108,6 +108,14 @@ size  material      color
 10    hemp canvas   natural
 11    glass         transparent
 
+| Animal    | Description | Price ($) |
+|-----------|-------------|----------:|
+| Gnat      | per gram    |     13.65 |
+|           | each        |      0.01 |
+| Gnu       | stuffed     |     92.50 |
+| Emu       | stuffed     |     33.33 |
+| Armadillo | frozen      |      8.99 |
+
 Table: Shoes, their sizes, and what they're made of
 
 (The above is the caption for the table.) Pandoc also supports

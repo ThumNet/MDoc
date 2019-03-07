@@ -1,6 +1,6 @@
 var mDoc = {};
 mDoc.settings = {
-    version: '0.2-alpha', 
+    version: '0.2-alpha',
     startMdFile: 'index.md',
     debug: false
 };
@@ -28,6 +28,23 @@ function initMarkedJs() {
             href = '#!' + href;
         }
         return marked.Renderer.prototype.link.call(this, href, title, text);
+    };
+
+    // custom table styling
+    renderer.table = function (head, body) {
+        if (body) body = `<tbody>${body}</tbody>`;
+        return `<div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>${head}</thead>
+                        ${body}
+                    </table>
+                </div>`;
+    };
+
+    renderer.code = function (code, infostring, escaped) {
+        if (infostring === 'mermaid') return `<div class="mermaid">${code}</div>`;
+
+        return marked.Renderer.prototype.code.call(this, code, infostring, escaped);
     };
 
     marked.setOptions({
@@ -79,7 +96,11 @@ function scrollToElement(selector) {
 
 
 function initMermaid() {
-    mermaid.init('code.language-mermaid');
+    var config = {
+        startOnLoad: false
+    };
+
+    mermaid.init(config, 'div.mermaid');
 }
 
 function initPrism() {
@@ -124,7 +145,6 @@ function handleError(ex) {
     doc.innerHTML = `<div class="alert alert-danger"><h4 class="alert-heading">Oops something went wrong...</h4>${body}</div>`;
 
     document.getElementById('sidebar').classList.add('d-none');
-    document.getElementById('sidebar').classList.add('d-none');
 }
 
 function displayDocs(mdContent) {
@@ -141,6 +161,8 @@ function displayDocs(mdContent) {
 
     setTimeout(initToc, 1);
     setTimeout(scrollToHash, 5);
+
+    addFullScreen('div.mermaid');
 }
 
 
@@ -170,6 +192,22 @@ function initToc() {
         }
     });
     document.getElementById('sidebar').classList.remove('d-none');
+}
+
+function addFullScreen(selector) {
+
+    [].forEach.call(document.querySelectorAll(selector), function (el) {
+        el.addEventListener('click', function () {
+            // code…
+            if (RunPrefixMethod(document, "FullScreen") || RunPrefixMethod(document, "IsFullScreen")) {
+                RunPrefixMethod(document, "CancelFullScreen");
+            }
+            else {
+                RunPrefixMethod(el, "RequestFullScreen");
+            }
+        })
+    });
+
 }
 
 // var render = function (template, selector) {
@@ -207,6 +245,26 @@ function renderMenu() {
                 </li>`;
     });
     return html;
+}
+
+
+var pfx = ["webkit", "moz", "ms", "o", ""];
+function RunPrefixMethod(obj, method) {
+
+    var p = 0, m, t;
+    while (p < pfx.length && !obj[m]) {
+        m = method;
+        if (pfx[p] == "") {
+            m = m.substr(0, 1).toLowerCase() + m.substr(1);
+        }
+        m = pfx[p] + m;
+        t = typeof obj[m];
+        if (t != "undefined") {
+            pfx = [pfx[p]];
+            return (t == "function" ? obj[m]() : obj[m]);
+        }
+        p++;
+    }
 }
 
 
