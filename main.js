@@ -27,12 +27,21 @@ function loadContent() {
         .then(function (content) {
             mDoc.allContent = content;
             console.log(content);
-            setTimeout(function () { 
-                //displayDocs(content[1].Contents); 
-                searchDocs('pellentesque');
-            }, 1000);
+            // setTimeout(function () { 
+            //     //displayDocs(content[1].Contents); 
+            //     searchDocs('pellentesque');
+            // }, 1000);
         });
 }
+
+function performSearch() {
+    var termInput = document.querySelector('form input[type=search]');
+    var term = termInput.value;
+    if (term) {
+        searchDocs(term);
+    }
+}
+
 
 function searchDocs(term) {
 
@@ -49,8 +58,8 @@ function searchDocs(term) {
         });
     });
 
-    console.log(found);
-
+    var doc = document.getElementById('doc');
+    doc.innerHTML = renderSearch(term, found);
 }
 
 function initMarkedJs() {
@@ -264,6 +273,10 @@ function renderNav() {
                 ${renderMenu()}                
             </ul>
         </div>
+        <form class="form-inline" onsubmit="performSearch(); return false;">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-light my-sm-0" type="submit">Search</button>
+        </form>
     </nav>`;
 }
 
@@ -280,6 +293,24 @@ function renderMenu() {
                 </li>`;
     });
     return html;
+}
+
+function renderSearch(term, items) {
+    var html = `<h1>Search results</h1>
+        <p><strong>${items.length}</strong> results where found for the search for <strong>${term}</strong><p>`;
+    items.forEach(function (item) {
+        html += `<div>
+                <h4><a href="#!${item.Path}">${item.Path}</a></h4>
+                <p>${highlightTerm(term, item.Contents)}</p>
+            </div>`;
+    });
+
+    return html;
+}
+
+function highlightTerm(term, content) {
+    var ix = content.indexOf(term);
+    return content.substring(0, ix) + '<strong>' + term + '</strong>' + content.substring(ix + term.length);
 }
 
 
