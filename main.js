@@ -4,6 +4,7 @@ mDoc.settings = {
     startMdFile: 'index.md',
     debug: false
 };
+mDoc.allContent = [];
 
 function init() {
     loadSettings();
@@ -24,9 +25,32 @@ function loadContent() {
     fetch('content.json')
         .then(function (response) { return response.json(); })
         .then(function (content) {
+            mDoc.allContent = content;
             console.log(content);
-            setTimeout(function () { displayDocs(content[1].Contents); }, 1000);
+            setTimeout(function () { 
+                //displayDocs(content[1].Contents); 
+                searchDocs('pellentesque');
+            }, 1000);
         });
+}
+
+function searchDocs(term) {
+
+    var contentSubLength = 80;
+    var found = [];
+
+    mDoc.allContent.forEach(function (item){
+        var matchIndex = item.Contents.search(new RegExp(term, 'i'));
+        if (matchIndex === -1) { return; }
+
+        found.push({ 
+            Path: item.Path, 
+            Contents: item.Contents.substring(matchIndex-contentSubLength, matchIndex+contentSubLength) 
+        });
+    });
+
+    console.log(found);
+
 }
 
 function initMarkedJs() {
