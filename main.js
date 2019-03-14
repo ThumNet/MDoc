@@ -7,6 +7,8 @@ mDoc.settings = {
 
 function init() {
     loadSettings();
+
+    loadContent();
 }
 
 function loadSettings() {
@@ -16,6 +18,15 @@ function loadSettings() {
             mDoc.settings = Object.assign(mDoc.settings, mySettings);
         })
         .finally(renderApp);
+}
+
+function loadContent() {
+    fetch('content.json')
+        .then(function (response) { return response.json(); })
+        .then(function (content) {
+            console.log(content);
+            setTimeout(function () { displayDocs(content[1].Contents); }, 1000);
+        });
 }
 
 function initMarkedJs() {
