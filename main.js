@@ -216,8 +216,6 @@ function navigateToHash(e) {
             return;
         }
 
-        var app = document.getElementById('app');
-        app.classList.remove('loaded');
         loadMarkdown(newHash.mdPath);
     }
 }
