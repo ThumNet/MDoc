@@ -8,11 +8,12 @@ mDoc.allContent = [];
 
 function init() {
     loadSettings();
-
     loadContent();
 }
 
 function loadSettings() {
+    initMarkedJs();          
+
     fetch('settings.json')
         .then(function (response) { return response.json(); })
         .then(function (mySettings) {
@@ -58,8 +59,8 @@ function searchDocs(term) {
         });
     });
 
-    var doc = document.getElementById('doc');
-    doc.innerHTML = renderSearch(term, found);
+    var main = document.getElementById('main');
+    main.innerHTML = renderSearch(term, found);
 }
 
 function initMarkedJs() {
@@ -96,43 +97,40 @@ function initMarkedJs() {
     });
 }
 
-
-
 function renderApp() {
     var app = document.getElementById('app');
     app.innerHTML = `${renderNav()}
-        <div class="container">
-            <div class="row">
-                <div id="sidebar" class="col-3">
-                    <div class="is-position-fixed">
-                        <p>Table of contents</p>
-                        <nav class="toc js-toc "></nav>
-                    </div>
+        <div class="container-fluid">
+            <div class="row flex-xl-nowrap">
+                <div class="col-12 col-md-3 col-xl-2 bd-sidebar" id="sidebar">
+                    <form class="bd-search d-flex align-items-center" onsubmit="performSearch(); return false;">
+                        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                    </form>
                 </div>
-                <div id="doc" class="col-9"></div>
+                <div class="d-none d-xl-block col-xl-2 bd-toc" id="toc">
+                </div>
+                <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main" id="main">
+                </main>
             </div>
         </div>`;
 
     setTimeout(function () {
-        initMarkedJs();
-        navigateToHashOrDefault();
+        var hash = readHash(location.hash);
+        loadMarkdown(hash.mdPath);
     }, mDoc.settings.debug ? 1000 : 1);
 }
 
 
 
 function scrollToHash() {
-    var hash = location.hash;
-    if ((hash.match(/#/g) || []).length < 2) {
-        return;
-    }
+    var hash = readHash(location.hash);
+    if (!hash || !hash.scrollTo) { return; }
 
-    var elmSelector = hash.substring(hash.lastIndexOf('#') + 1);
-    scrollToElement(elmSelector);
+    scrollToElement(hash.scrollTo);
 }
 
 function scrollToElement(selector) {
-    var elm = document.querySelector(selector);
+    var elm = document.getElementById(selector);
     if (elm) {
         elm.scrollIntoView(true);
     }
@@ -148,8 +146,8 @@ function initMermaid() {
 }
 
 function initPrism() {
-    var doc = document.getElementById('doc');
-    Prism.highlightAllUnder(doc, false);
+    var main = document.getElementById('main');
+    Prism.highlightAllUnder(main, false);
 }
 
 function loadMarkdown(mdPath) {
@@ -185,57 +183,106 @@ function handleError(ex) {
         body = `<p>${ex.message}<p><pre>${ex.stack}</pre>`;
     }
 
-    var doc = document.getElementById('doc');
-    doc.innerHTML = `<div class="alert alert-danger"><h4 class="alert-heading">Oops something went wrong...</h4>${body}</div>`;
-
-    document.getElementById('sidebar').classList.add('d-none');
+    var main = document.getElementById('main');
+    main.innerHTML = `<div class="alert alert-danger"><h4 class="alert-heading">Oops something went wrong...</h4>${body}</div>`;    
 }
 
 function displayDocs(mdContent) {
     var app = document.getElementById('app');
     app.classList.add('loaded');
 
-    var doc = document.getElementById('doc');
-    doc.innerHTML = marked(mdContent);
+    var main = document.getElementById('main');
+    main.innerHTML = marked(mdContent);
 
     setTimeout(initPrism, 1);
     if (mdContent.indexOf('```mermaid') !== -1) {
         setTimeout(initMermaid, 1);
     }
-
-    setTimeout(initToc, 1);
+    
     setTimeout(scrollToHash, 5);
+    setTimeout(displayToc, 1);
 
     addFullScreen('div.mermaid');
 }
 
 
-function navigateToHashOrDefault() {
-    var app = document.getElementById('app');
-    app.classList.remove('loaded');
+function navigateToHash(e) {
 
-    var hash = location.hash;
-    if (hash.indexOf('#!') === 0 && hash.length > 2) {
-        var path = hash.substring(2);
-        loadMarkdown(path);
-        return;
+    var oldHash = readHash(e.oldURL);
+    var newHash = readHash(e.newURL);
+    if (newHash && newHash.mdPath) {
+        if (oldHash && oldHash.mdPath === newHash.mdPath) {
+            scrollToHash(newHash.scrollTo);
+            return;
+        }
+
+        var app = document.getElementById('app');
+        app.classList.remove('loaded');
+        loadMarkdown(newHash.mdPath);
     }
-
-    loadMarkdown(mDoc.settings.startMdFile);
 }
 
-function initToc() {
-    //tocbot.destroy();
-    tocbot.init({
-        tocSelector: '.js-toc',
-        contentSelector: '#doc',
-        headingSelector: 'h1, h2, h3',
-        collapseDepth: 3,
-        onClick: function (e) {
-            return false;
+function readHash(hash) {
+
+    if (!hash || hash.indexOf('#') === -1) { 
+        return { mdPath: mDoc.settings.startMdFile, page: '#!' };
+    }
+
+    // if URL is given take only hash part!
+    hash = hash.substring(hash.indexOf('#'));
+
+    if (hash === '#!') {
+        return { mdPath: mDoc.settings.startMdFile, page: '#!' };
+    }
+
+    var lastIndex = hash.lastIndexOf('#');
+    if (lastIndex === 0) {
+        return { mdPath: hash.substring(2), page: `#!${hash.substring(2)}` };
+    }
+
+    if (lastIndex === 2) { // #!#
+        return { mdPath: mDoc.settings.startMdFile, page: `#!${hash.substring(2, lastIndex)}`, scrollTo: hash.substring(lastIndex+1) };
+    }
+
+    return { mdPath: hash.substring(2, lastIndex), page: `#!${hash.substring(2, lastIndex)}`, scrollTo: hash.substring(lastIndex+1) };
+}
+
+
+
+function displayToc() {
+    document.getElementById('toc').innerHTML = renderToc();
+}
+
+function renderToc() {
+    var headers = document.querySelectorAll('#main h2, #main h3');
+    if (!headers.length) { return ''; }    
+
+    var page = readHash(location.hash).page;
+    var currentLevel = 2;
+    var html = '<ul class="section-nav">';
+    for (var i=0, len=headers.length; i<len; i++) {
+        var level = parseInt(headers[i].tagName.substring(1));
+        var levelNext = i < len-1 ? parseInt(headers[i+1].tagName.substring(1)) : level;           
+
+        html += `<li class="toc-entry toc-h${level}">
+                    <a href="${page}#${headers[i].id}" tabindex="-1">${headers[i].textContent}</a>`;
+        
+        if (level === levelNext) {
+            html += '</li>';
+        } else if (levelNext > level) {
+            html += '<ul>';
+        } else {
+            html += '</li></ul>';
         }
-    });
-    document.getElementById('sidebar').classList.remove('d-none');
+        currentLevel = level;
+    }
+
+    if (currentLevel > 2) {
+        html += '</ul>'.repeat(currentLevel - 2);
+    }
+
+    html += '</ul>';   
+    return html; 
 }
 
 function addFullScreen(selector) {
@@ -254,30 +301,17 @@ function addFullScreen(selector) {
 
 }
 
-// var render = function (template, selector) {
-//     var node = document.querySelector(selector);
-//     if (!node) return;
-//     node.innerHTML = template;
-// } 
-
 function renderNav() {
     var title = mDoc.settings.title || document.title;
     return `
-    <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
-        <a class="navbar-brand" href="#!">${title}</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMdoc" aria-controls="navbarMdoc" aria-expanded="true" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="navbar-collapse collapse show" id="navbarMdoc" style="">
-            <ul class="navbar-nav mr-auto">
-                ${renderMenu()}                
+    <header class="navbar navbar-expand navbar-dark flex-column flex-md-row bd-navbar bg-dark">
+        <a class="navbar-brand mr-0 mr-md-2" href="#!" aria-label="MDoc">${title}</a>
+        <div class="navbar-nav-scroll">
+            <ul class="navbar-nav flex-row">
+            ${renderMenu()}
             </ul>
         </div>
-        <form class="form-inline" onsubmit="performSearch(); return false;">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-light my-sm-0" type="submit">Search</button>
-        </form>
-    </nav>`;
+    </header>`;
 }
 
 function renderMenu() {
@@ -334,5 +368,5 @@ function RunPrefixMethod(obj, method) {
 }
 
 
-window.addEventListener('hashchange', navigateToHashOrDefault, false);
+window.addEventListener('hashchange', navigateToHash, false);
 document.addEventListener('DOMContentLoaded', init, false);

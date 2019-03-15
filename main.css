@@ -7,8 +7,13 @@
 
 #app:not(.loaded) * { display: none; }
 
-/* TocBot */
-.is-position-fixed { top: unset !important; }
+.navbar-brand { min-height: 48px; }
+.bd-search .form-control:focus {
+  border-color: #343a40 !important;
+  box-shadow: 0 0 0 3px rgba(52,58,64,.25) !important;
+}
+.bd-navbar .navbar-nav .nav-link { color: rgba(255,255,255,.5) !important; }
+
 
 #app.loaded-animation { 
     -webkit-animation: fadein 2s; /* Safari, Chrome and Opera > 12.1 */
