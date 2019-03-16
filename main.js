@@ -27,11 +27,15 @@ function loadContent() {
         .then(function (response) { return response.json(); })
         .then(function (content) {
             mDoc.allContent = content;
-            console.log(content);
+            var mdFiles = content.map(function (item) {
+                return item.Path;
+            });
+            mDoc.tree = Treeify(mdFiles);
             // setTimeout(function () { 
             //     //displayDocs(content[1].Contents); 
-            //     searchDocs('pellentesque');
-            // }, 1000);
+            //     //searchDocs('pellentesque');
+            //     //displaySidebar(mDoc.tree);
+            // }, 10);
         });
 }
 
@@ -102,10 +106,13 @@ function renderApp() {
     app.innerHTML = `${renderNav()}
         <div class="container-fluid">
             <div class="row flex-xl-nowrap">
-                <div class="col-12 col-md-3 col-xl-2 bd-sidebar" id="sidebar">
+                <div class="col-12 col-md-3 col-xl-2 bd-sidebar">
                     <form class="bd-search d-flex align-items-center" onsubmit="performSearch(); return false;">
                         <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
                     </form>
+                    <nav class="collapse bd-links" id="sidebar">
+
+                    </nav>
                 </div>
                 <div class="d-none d-xl-block col-xl-2 bd-toc" id="toc">
                 </div>
@@ -201,6 +208,8 @@ function displayDocs(mdContent) {
     
     setTimeout(scrollToHash, 5);
     setTimeout(displayToc, 1);
+    setTimeout(displaySidebar, 1);
+    
 
     addFullScreen('div.mermaid');
 }
@@ -245,10 +254,22 @@ function readHash(hash) {
     return { mdPath: hash.substring(2, lastIndex), page: `#!${hash.substring(2, lastIndex)}`, scrollTo: hash.substring(lastIndex+1) };
 }
 
-
-
 function displayToc() {
     document.getElementById('toc').innerHTML = renderToc();
+}
+
+function displaySidebar() {
+    document.getElementById('sidebar').innerHTML = renderSidebar(mDoc.tree);
+
+    var toggler = document.getElementsByClassName("caret");
+    var i;
+
+    for (i = 0; i < toggler.length; i++) {
+        toggler[i].addEventListener("click", function() {
+            this.parentElement.querySelector(".nested").classList.toggle("active");
+            this.classList.toggle("caret-down");
+        });
+    }
 }
 
 function renderToc() {
@@ -281,6 +302,30 @@ function renderToc() {
 
     html += '</ul>';   
     return html; 
+}
+
+function renderSidebar(tree) {
+    if (!tree) { return ''; }
+
+    var currentMd = readHash(location.hash).mdPath;
+
+    function renderFolderNav(path, children) {
+        var html = path === '' ? '<ul>' : currentMd.indexOf(path) === 0 ? '<ul class="nested active">' : '<ul class="nested">';
+        
+        Object.keys(children).forEach(function (key) {
+            if (children[key] === 'file') {
+                var className = currentMd === path + key ? 'current' : '';
+                html += `<li><a href="#!${path}${key}" class="${className}" tabindex="-1">${key}</a></li>`; 
+            } else {
+                html += `<li><span class="caret">${key}</span>${renderFolderNav(`${path}${key}/`, children[key])}</li>`;            
+            }
+        });
+        html += '</ul>';
+        return html;
+    }
+
+    var html = renderFolderNav('', tree);
+    return html;
 }
 
 function addFullScreen(selector) {
@@ -363,6 +408,42 @@ function RunPrefixMethod(obj, method) {
         }
         p++;
     }
+}
+
+function Treeify(files) {
+    var fileTree = {};
+  
+    if (files instanceof Array === false) {
+      throw new Error('Expected an Array of file paths, but saw ' + files);
+    }
+  
+    function mergePathsIntoFileTree(prevDir, currDir, i, filePath) {
+  
+      if (i === filePath.length - 1) {
+        prevDir[currDir] = 'file';
+      }
+  
+      if (!prevDir.hasOwnProperty(currDir)) {
+        prevDir[currDir] = {};
+      }
+  
+      return prevDir[currDir];
+    }
+  
+    function parseFilePath(filePath) {
+      var fileLocation = filePath.split('/');
+  
+      // If file is in root directory, eg 'index.js'
+      if (fileLocation.length === 1) {
+        return (fileTree[fileLocation[0]] = 'file');
+      }
+  
+      fileLocation.reduce(mergePathsIntoFileTree, fileTree);
+    }
+  
+    files.forEach(parseFilePath);
+  
+    return fileTree;
 }
 
 

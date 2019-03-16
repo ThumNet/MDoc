@@ -7,13 +7,57 @@
 
 #app:not(.loaded) * { display: none; }
 
-.navbar-brand { min-height: 48px; }
 .bd-search .form-control:focus {
   border-color: #343a40 !important;
   box-shadow: 0 0 0 3px rgba(52,58,64,.25) !important;
 }
 .bd-navbar .navbar-nav .nav-link { color: rgba(255,255,255,.5) !important; }
 
+
+#sidebar ul {
+  list-style-type: none;
+  padding-left: 1rem;  
+  font-size: .875rem;
+}
+
+#sidebar .current {
+  font-weight: bold;
+}
+#sidebar span, #sidebar a {
+  color: #77757a;
+}
+
+#sidebar span, #sidebar a {
+  color: #77757a;
+}
+
+#sidebar span:hover, #sidebar a:hover {
+  color: #007bff;
+  text-decoration: none;
+}
+
+#sidebar .caret {
+  cursor: pointer; 
+  user-select: none;
+}
+
+#sidebar .caret::before {
+  content: "+";
+  font-family: monospace;
+  font-weight: bolder;
+  font-size: 1.4em;
+  display: inline-block;
+  margin-right: 3px;
+}
+#sidebar .caret-down::before {
+  content: "-";
+}
+#sidebar .nested {
+  display: none;
+}
+#sidebar .active {
+  display: block;
+}
 
 #app.loaded-animation { 
     -webkit-animation: fadein 2s; /* Safari, Chrome and Opera > 12.1 */
