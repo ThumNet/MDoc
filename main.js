@@ -255,7 +255,8 @@ function readHash(hash) {
 }
 
 function displayToc() {
-    document.getElementById('toc').innerHTML = renderToc();
+    var headers = document.querySelectorAll('#main h2, #main h3');
+    document.getElementById('toc').innerHTML = renderToc(headers);
 }
 
 function displaySidebar() {
@@ -272,8 +273,7 @@ function displaySidebar() {
     }
 }
 
-function renderToc() {
-    var headers = document.querySelectorAll('#main h2, #main h3');
+function renderToc(headers) {
     if (!headers.length) { return ''; }    
 
     var page = readHash(location.hash).page;
