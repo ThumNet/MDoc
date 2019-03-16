@@ -44,6 +44,7 @@ function performSearch() {
     var term = termInput.value;
     if (term) {
         searchDocs(term);
+        displayToc();
     }
 }
 
@@ -198,6 +199,7 @@ function displayDocs(mdContent) {
     var app = document.getElementById('app');
     app.classList.add('loaded');
 
+    document.querySelector('form input[type=search]').value = '';
     var main = document.getElementById('main');
     main.innerHTML = marked(mdContent);
 
@@ -210,10 +212,8 @@ function displayDocs(mdContent) {
     setTimeout(displayToc, 1);
     setTimeout(displaySidebar, 1);
     
-
     addFullScreen('div.mermaid');
 }
-
 
 function navigateToHash(e) {
 
