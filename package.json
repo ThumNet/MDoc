@@ -1,0 +1,29 @@
+{
+  "name": "mdoc",
+  "version": "0.6",
+  "description": "Is a single page markdown explorer",
+  "main": "index.html",
+  "dependencies": {},
+  "devDependencies": {
+    "http-server": "^0.11.1",
+    "inline-source": "^6.1.9"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "publish": "node build/publish.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThumNet/MDoc.git"
+  },
+  "keywords": [
+    "markdown",
+    "wiki"
+  ],
+  "author": "ThumNet",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ThumNet/MDoc/issues"
+  },
+  "homepage": "https://github.com/ThumNet/MDoc#readme"
+}

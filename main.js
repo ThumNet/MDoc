@@ -1,6 +1,6 @@
 var mDoc = {};
 mDoc.settings = {
-    version: '0.2-alpha',
+    version: '0.6-beta',
     startMdFile: 'index.md',
     debug: false
 };
