@@ -9,6 +9,7 @@ Try not using jQuery and code VanillaJS, see [Sans jQuery](https://gist.github.c
 - Add warning for <= IE11
 - Add fullscreen functionality for elements (like tables, images etc)
 - Write documentation about this repo (see [template](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2))
+- Integrate PlantUML
 
 ### Task list done
 - Page not found/error handling
@@ -17,3 +18,5 @@ Try not using jQuery and code VanillaJS, see [Sans jQuery](https://gist.github.c
 - Fullscreen viewing (mermaid)
 - Table Of Contents links
 - Make the top nav sticky (or create different navigation)
+- Support Bootswatch themes
+- Add Git edit and history links

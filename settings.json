@@ -1,5 +1,6 @@
 {
     "title": "ThumNet mDocs",
+    "gitRepo": "https://github.com/thumnet/mdoc",
     "nav": [
         { "title": "Samples", "href": "samples/todo" }
     ]

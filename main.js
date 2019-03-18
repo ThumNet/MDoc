@@ -201,7 +201,7 @@ function displayDocs(mdContent) {
 
     document.querySelector('form input[type=search]').value = '';
     var main = document.getElementById('main');
-    main.innerHTML = marked(mdContent);
+    main.innerHTML = renderGitLinks() + marked(mdContent);
 
     setTimeout(initPrism, 1);
     if (mdContent.indexOf('```mermaid') !== -1) {
@@ -271,6 +271,26 @@ function displaySidebar() {
             this.classList.toggle("caret-down");
         });
     }
+}
+
+function renderGitLinks() {
+    if (!mDoc.settings.gitRepo) { return ''; }
+    var repoUrl = mDoc.settings.gitRepo;
+    var mdPath = readHash(location.hash).mdPath;
+    var editLink, historyLink;
+
+    if (repoUrl.indexOf('https://github.com/') === 0) {
+        editLink = `${repoUrl}/blob/master/${mdPath}`;
+        historyLink = `${repoUrl}/commits/master/${mdPath}`;
+    } else {
+        // only TFS for now...
+        editLink = `${repoUrl}?path=%2F${encodeURIComponent(mdPath)}&_a=contents`;
+        historyLink = `${repoUrl}?path=%2F${encodeURIComponent(mdPath)}&_a=history`;
+    }
+
+    return `<div class="float-right">
+        <a href="${editLink}">Edit</a> | <a href="${historyLink}">History</a>
+    </div>`;
 }
 
 function renderToc(headers) {
@@ -347,7 +367,7 @@ function addFullScreen(selector) {
 function renderNav() {
     var title = mDoc.settings.title || document.title;
     return `
-    <header class="navbar navbar-expand navbar-dark flex-column flex-md-row bd-navbar bg-dark">
+    <header class="navbar navbar-expand navbar-dark flex-column flex-md-row bd-navbar bg-primary">
         <a class="navbar-brand mr-0 mr-md-2" href="#!" aria-label="MDoc">${title}</a>
         <div class="navbar-nav-scroll">
             <ul class="navbar-nav flex-row">
