@@ -12,7 +12,7 @@ function init() {
 }
 
 function loadSettings() {
-    initMarkedJs();          
+    initMarkedJs();
 
     fetch('settings.json')
         .then(function (response) { return response.json(); })
@@ -54,13 +54,13 @@ function searchDocs(term) {
     var contentSubLength = 80;
     var found = [];
 
-    mDoc.allContent.forEach(function (item){
+    mDoc.allContent.forEach(function (item) {
         var matchIndex = item.Contents.search(new RegExp(term, 'i'));
         if (matchIndex === -1) { return; }
 
-        found.push({ 
-            Path: item.Path, 
-            Contents: item.Contents.substring(matchIndex-contentSubLength, matchIndex+contentSubLength) 
+        found.push({
+            Path: item.Path,
+            Contents: item.Contents.substring(matchIndex - contentSubLength, matchIndex + contentSubLength)
         });
     });
 
@@ -92,7 +92,8 @@ function initMarkedJs() {
     };
 
     renderer.code = function (code, infostring, escaped) {
-        if (infostring === 'mermaid') return `<div class="mermaid">${code}</div>`;
+        if (infostring === 'mermaid') { return `<div class="mermaid">${code}</div>`; }
+        if (infostring === 'plantuml') { return `<img src="${createPlantUmlImgSource(code)}" />` }
 
         return marked.Renderer.prototype.code.call(this, code, infostring, escaped);
     };
@@ -101,6 +102,58 @@ function initMarkedJs() {
         renderer: renderer
     });
 }
+
+function createPlantUmlImgSource(umlCode) {
+
+    function encode64(data) {
+        r = "";
+        for (i = 0; i < data.length; i += 3) {
+            if (i + 2 == data.length) {
+                r += append3bytes(data.charCodeAt(i), data.charCodeAt(i + 1), 0);
+            } else if (i + 1 == data.length) {
+                r += append3bytes(data.charCodeAt(i), 0, 0);
+            } else {
+                r += append3bytes(data.charCodeAt(i), data.charCodeAt(i + 1),
+                    data.charCodeAt(i + 2));
+            }
+        }
+        return r;
+    }
+
+    function append3bytes(b1, b2, b3) {
+        c1 = b1 >> 2;
+        c2 = ((b1 & 0x3) << 4) | (b2 >> 4);
+        c3 = ((b2 & 0xF) << 2) | (b3 >> 6);
+        c4 = b3 & 0x3F;
+        r = "";
+        r += encode6bit(c1 & 0x3F);
+        r += encode6bit(c2 & 0x3F);
+        r += encode6bit(c3 & 0x3F);
+        r += encode6bit(c4 & 0x3F);
+        return r;
+    }
+
+    function encode6bit(b) {
+        if (b < 10) { return String.fromCharCode(48 + b); }
+        b -= 10;
+        if (b < 26) { return String.fromCharCode(65 + b); }
+        b -= 26;
+        if (b < 26) { return String.fromCharCode(97 + b); }
+        b -= 26;
+        if (b == 0) { return '-'; }
+        if (b == 1) { return '_'; }
+        return '?';
+    }
+
+    function compress(s) {
+        //UTF8
+        s = unescape(encodeURIComponent(s));
+        return encode64(RawDeflate.deflate(s, 9));
+    }
+
+    return 'http://www.plantuml.com/plantuml/img/' + compress(umlCode);
+}
+
 
 function renderApp() {
     var app = document.getElementById('app');
@@ -125,7 +178,7 @@ function renderApp() {
     setTimeout(function () {
         var hash = readHash(location.hash);
         loadMarkdown(hash.mdPath);
-    }, mDoc.settings.debug ? 1000 : 1);
+    }, mDoc.settings.debug ? 300 : 1);
 }
 
 
@@ -192,7 +245,7 @@ function handleError(ex) {
     }
 
     var main = document.getElementById('main');
-    main.innerHTML = `<div class="alert alert-danger"><h4 class="alert-heading">Oops something went wrong...</h4>${body}</div>`;    
+    main.innerHTML = `<div class="alert alert-danger"><h4 class="alert-heading">Oops something went wrong...</h4>${body}</div>`;
 }
 
 function displayDocs(mdContent) {
@@ -207,11 +260,11 @@ function displayDocs(mdContent) {
     if (mdContent.indexOf('```mermaid') !== -1) {
         setTimeout(initMermaid, 1);
     }
-    
+
     setTimeout(scrollToHash, 5);
     setTimeout(displayToc, 1);
     setTimeout(displaySidebar, 1);
-    
+
     addFullScreen('div.mermaid');
 }
 
@@ -231,7 +284,7 @@ function navigateToHash(e) {
 
 function readHash(hash) {
 
-    if (!hash || hash.indexOf('#') === -1) { 
+    if (!hash || hash.indexOf('#') === -1) {
         return { mdPath: mDoc.settings.startMdFile, page: '#!' };
     }
 
@@ -248,10 +301,10 @@ function readHash(hash) {
     }
 
     if (lastIndex === 2) { // #!#
-        return { mdPath: mDoc.settings.startMdFile, page: `#!${hash.substring(2, lastIndex)}`, scrollTo: hash.substring(lastIndex+1) };
+        return { mdPath: mDoc.settings.startMdFile, page: `#!${hash.substring(2, lastIndex)}`, scrollTo: hash.substring(lastIndex + 1) };
     }
 
-    return { mdPath: hash.substring(2, lastIndex), page: `#!${hash.substring(2, lastIndex)}`, scrollTo: hash.substring(lastIndex+1) };
+    return { mdPath: hash.substring(2, lastIndex), page: `#!${hash.substring(2, lastIndex)}`, scrollTo: hash.substring(lastIndex + 1) };
 }
 
 function displayToc() {
@@ -266,7 +319,7 @@ function displaySidebar() {
     var i;
 
     for (i = 0; i < toggler.length; i++) {
-        toggler[i].addEventListener("click", function() {
+        toggler[i].addEventListener("click", function () {
             this.parentElement.querySelector(".nested").classList.toggle("active");
             this.classList.toggle("caret-down");
         });
@@ -294,18 +347,18 @@ function renderGitLinks() {
 }
 
 function renderToc(headers) {
-    if (!headers.length) { return ''; }    
+    if (!headers.length) { return ''; }
 
     var page = readHash(location.hash).page;
     var currentLevel = 2;
     var html = '<ul class="section-nav">';
-    for (var i=0, len=headers.length; i<len; i++) {
+    for (var i = 0, len = headers.length; i < len; i++) {
         var level = parseInt(headers[i].tagName.substring(1));
-        var levelNext = i < len-1 ? parseInt(headers[i+1].tagName.substring(1)) : level;           
+        var levelNext = i < len - 1 ? parseInt(headers[i + 1].tagName.substring(1)) : level;
 
         html += `<li class="toc-entry toc-h${level}">
                     <a href="${page}#${headers[i].id}" tabindex="-1">${headers[i].textContent}</a>`;
-        
+
         if (level === levelNext) {
             html += '</li>';
         } else if (levelNext > level) {
@@ -320,8 +373,8 @@ function renderToc(headers) {
         html += '</ul>'.repeat(currentLevel - 2);
     }
 
-    html += '</ul>';   
-    return html; 
+    html += '</ul>';
+    return html;
 }
 
 function renderSidebar(tree) {
@@ -331,13 +384,13 @@ function renderSidebar(tree) {
 
     function renderFolderNav(path, children) {
         var html = path === '' ? '<ul>' : currentMd.indexOf(path) === 0 ? '<ul class="nested active">' : '<ul class="nested">';
-        
+
         Object.keys(children).forEach(function (key) {
             if (children[key] === 'file') {
                 var className = currentMd === path + key ? 'current' : '';
-                html += `<li><a href="#!${path}${key}" class="${className}" tabindex="-1">${key}</a></li>`; 
+                html += `<li><a href="#!${path}${key}" class="${className}" tabindex="-1">${key}</a></li>`;
             } else {
-                html += `<li><span class="caret">${key}</span>${renderFolderNav(`${path}${key}/`, children[key])}</li>`;            
+                html += `<li><span class="caret">${key}</span>${renderFolderNav(`${path}${key}/`, children[key])}</li>`;
             }
         });
         html += '</ul>';
@@ -432,37 +485,37 @@ function RunPrefixMethod(obj, method) {
 
 function Treeify(files) {
     var fileTree = {};
-  
+
     if (files instanceof Array === false) {
-      throw new Error('Expected an Array of file paths, but saw ' + files);
+        throw new Error('Expected an Array of file paths, but saw ' + files);
     }
-  
+
     function mergePathsIntoFileTree(prevDir, currDir, i, filePath) {
-  
-      if (i === filePath.length - 1) {
-        prevDir[currDir] = 'file';
-      }
-  
-      if (!prevDir.hasOwnProperty(currDir)) {
-        prevDir[currDir] = {};
-      }
-  
-      return prevDir[currDir];
+
+        if (i === filePath.length - 1) {
+            prevDir[currDir] = 'file';
+        }
+
+        if (!prevDir.hasOwnProperty(currDir)) {
+            prevDir[currDir] = {};
+        }
+
+        return prevDir[currDir];
     }
-  
+
     function parseFilePath(filePath) {
-      var fileLocation = filePath.split('/');
-  
-      // If file is in root directory, eg 'index.js'
-      if (fileLocation.length === 1) {
-        return (fileTree[fileLocation[0]] = 'file');
-      }
-  
-      fileLocation.reduce(mergePathsIntoFileTree, fileTree);
+        var fileLocation = filePath.split('/');
+
+        // If file is in root directory, eg 'index.js'
+        if (fileLocation.length === 1) {
+            return (fileTree[fileLocation[0]] = 'file');
+        }
+
+        fileLocation.reduce(mergePathsIntoFileTree, fileTree);
     }
-  
+
     files.forEach(parseFilePath);
-  
+
     return fileTree;
 }
 
