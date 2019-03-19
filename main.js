@@ -66,6 +66,7 @@ function searchDocs(term) {
 
     var main = document.getElementById('main');
     main.innerHTML = renderSearch(term, found);
+    location.hash = readHash(location.hash).page + '#mdoc-search';
 }
 
 function initMarkedJs() {
@@ -273,7 +274,7 @@ function navigateToHash(e) {
     var oldHash = readHash(e.oldURL);
     var newHash = readHash(e.newURL);
     if (newHash && newHash.mdPath) {
-        if (oldHash && oldHash.mdPath === newHash.mdPath) {
+        if (oldHash && oldHash.mdPath === newHash.mdPath && oldHash.scrollTo !== 'mdoc-search') {
             scrollToHash(newHash.scrollTo);
             return;
         }
