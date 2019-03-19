@@ -389,10 +389,10 @@ function renderSidebar(tree) {
         Object.keys(children).forEach(function (key) {
             if (children[key] === 'file') {
                 var className = currentMd === path + key ? 'current' : '';
-                html += `<li><a href="#!${path}${key}" class="${className}" tabindex="-1">${key}</a></li>`;
+                html += `<li><a href="#!${path}${key}" class="${className}" tabindex="-1">${getNavText(key)}</a></li>`;
             } else {
                 var openList = currentMd.indexOf(path+key+'/') === 0;
-                html += `<li><span class="${openList ? 'caret caret-down' : 'caret'}">${key}</span>${renderFolderNav(`${path}${key}/`, children[key])}</li>`;
+                html += `<li><span class="${openList ? 'caret caret-down' : 'caret'}">${getNavText(key)}</span>${renderFolderNav(`${path}${key}/`, children[key])}</li>`;
             }
         });
         html += '</ul>';
@@ -452,8 +452,11 @@ function renderSearch(term, items) {
         <p><strong>${items.length}</strong> results where found for the search for <strong>${term}</strong><p>`;
     items.forEach(function (item) {
         html += `<div>
-                <h4><a href="#!${item.Path}">${item.Path}</a></h4>
-                <p>${highlightTerm(term, item.Contents)}</p>
+                <h4><a href="#!${item.Path}">${getNavText(item.Path)}</a></h4>
+                <p>
+                    ...${highlightTerm(term, item.Contents)}...
+                    <br /><small><a href="#!${item.Path}" tabindex="-1" class="text-muted">${item.Path}</a></small>  
+                </p>
             </div>`;
     });
 
@@ -463,6 +466,20 @@ function renderSearch(term, items) {
 function highlightTerm(term, content) {
     var ix = content.indexOf(term);
     return content.substring(0, ix) + '<strong>' + term + '</strong>' + content.substring(ix + term.length);
+}
+
+function getNavText(title) {
+    if (title.lastIndexOf('.md') === title.length -3) {
+        title = title.slice(0, -3);
+    }
+
+    if (title.indexOf('/') !== -1){
+        title = title.slice(title.lastIndexOf('/')+1);
+    }
+
+    if (title.length <= 3) return title.toUpperCase();
+
+    return title.split("-").map(p => p[0].toUpperCase() + p.slice(1)).join(" ");
 }
 
 
