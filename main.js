@@ -390,7 +390,8 @@ function renderSidebar(tree) {
                 var className = currentMd === path + key ? 'current' : '';
                 html += `<li><a href="#!${path}${key}" class="${className}" tabindex="-1">${key}</a></li>`;
             } else {
-                html += `<li><span class="caret">${key}</span>${renderFolderNav(`${path}${key}/`, children[key])}</li>`;
+                var openList = currentMd.indexOf(path+key+'/') === 0;
+                html += `<li><span class="${openList ? 'caret caret-down' : 'caret'}">${key}</span>${renderFolderNav(`${path}${key}/`, children[key])}</li>`;
             }
         });
         html += '</ul>';
