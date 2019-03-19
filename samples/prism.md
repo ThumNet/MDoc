@@ -1,0 +1,20 @@
+
+Prism voorbeeld met JSON
+
+```json
+{
+    "data": {
+        "labels": [
+            "foo",
+            "bar"
+        ],
+        "series": [
+            [ 0, 1, 2, 3 ],
+            [ 0, -4, -8, -12 ]
+        ]
+    },
+    // we even support comments
+    "error": null,
+    "status": "Ok"
+}
+```
