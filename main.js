@@ -1,41 +1,52 @@
-var mDoc = {};
-mDoc.settings = {
-    version: '0.6-beta',
-    startMdFile: 'index.md',
-    debug: false
+var mDoc = {
+    version: '0.7-beta',
+    settings: {
+        startMdFile: 'index.md',
+        settingsJson: 'settings.json',
+        contentJson: 'content.json',
+    },
+    allContent: []
 };
-mDoc.allContent = [];
 
 function init() {
     loadSettings();
-    loadContent();
 }
 
 function loadSettings() {
     initMarkedJs();
 
-    fetch('settings.json')
-        .then(function (response) { return response.json(); })
+    fetch(mDoc.settings.settingsJson)
+        .then(checkStatus)
+        .then(parseJson)
         .then(function (mySettings) {
             mDoc.settings = Object.assign(mDoc.settings, mySettings);
         })
         .finally(renderApp);
 }
 
+function checkStatus(response) {
+    if (!response.ok) {
+        throw new Error(`Fetch ${response.url} failed: ${response.statusText}`);
+    }
+    return response;
+}
+function parseJson(response) {
+    return response.json();
+}
+
 function loadContent() {
-    fetch('content.json')
-        .then(function (response) { return response.json(); })
+    fetch(mDoc.settings.contentJson)
+        .then(checkStatus)
+        .then(parseJson)
         .then(function (content) {
             mDoc.allContent = content;
             var mdFiles = content.map(function (item) {
                 return item.Path;
             });
             mDoc.tree = Treeify(mdFiles);
-            // setTimeout(function () { 
-            //     //displayDocs(content[1].Contents); 
-            //     //searchDocs('pellentesque');
-            //     //displaySidebar(mDoc.tree);
-            // }, 10);
+        })
+        .catch(function (error) {
+            console.error('Unabled to load contentJson', error);
         });
 }
 
@@ -161,16 +172,10 @@ function renderApp() {
     app.innerHTML = `${renderNav()}
         <div class="container-fluid">
             <div class="row flex-xl-nowrap">
-                <div class="col-12 col-md-3 col-xl-2 bd-sidebar">
-                    <form class="bd-search d-flex align-items-center" onsubmit="performSearch(); return false;">
-                        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                    </form>
-                    <nav class="collapse bd-links" id="sidebar">
-
-                    </nav>
+                <div class="col-12 col-md-3 col-xl-2 bd-sidebar" id="sidebar">                    
                 </div>
                 <div class="d-none d-xl-block col-xl-2 bd-toc" id="toc">
-                </div>
+                </div>                
                 <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main" id="main">
                 </main>
             </div>
@@ -179,7 +184,9 @@ function renderApp() {
     setTimeout(function () {
         var hash = readHash(location.hash);
         loadMarkdown(hash.mdPath);
-    }, mDoc.settings.debug ? 300 : 1);
+    }, 1);
+
+    setTimeout(loadContent, 5);
 }
 
 
@@ -253,9 +260,12 @@ function displayDocs(mdContent) {
     var app = document.getElementById('app');
     app.classList.add('loaded');
 
-    document.querySelector('form input[type=search]').value = '';
+    if (mDoc.tree) {
+        document.querySelector('form input[type=search]').value = '';
+    }
+    
     var main = document.getElementById('main');
-    main.innerHTML = renderGitLinks() + marked(mdContent);
+    main.innerHTML = renderPrint() + renderGitLinks() + marked(mdContent);
 
     setTimeout(initPrism, 1);
     if (mdContent.indexOf('```mermaid') !== -1) {
@@ -327,6 +337,10 @@ function displaySidebar() {
     }
 }
 
+function renderPrint() {
+    return `<div class="d-none d-print-block pb-3 text-muted">mDoc v${mDoc.version} - Printed from <a href="${location.href}">${location.href}</a> on ${new Date().toLocaleString()}</div>`
+}
+
 function renderGitLinks() {
     if (!mDoc.settings.gitRepo) { return ''; }
     var repoUrl = mDoc.settings.gitRepo;
@@ -342,7 +356,7 @@ function renderGitLinks() {
         historyLink = `${repoUrl}?path=%2F${encodeURIComponent(mdPath)}&_a=history`;
     }
 
-    return `<div class="float-right">
+    return `<div class="gitlinks float-right">
         <a href="${editLink}">Edit</a> | <a href="${historyLink}">History</a>
     </div>`;
 }
@@ -391,7 +405,7 @@ function renderSidebar(tree) {
                 var className = currentMd === path + key ? 'current' : '';
                 html += `<li><a href="#!${path}${key}" class="${className}" tabindex="-1">${getNavText(key)}</a></li>`;
             } else {
-                var openList = currentMd.indexOf(path+key+'/') === 0;
+                var openList = currentMd.indexOf(path + key + '/') === 0;
                 html += `<li><span class="${openList ? 'caret caret-down' : 'caret'}">${getNavText(key)}</span>${renderFolderNav(`${path}${key}/`, children[key])}</li>`;
             }
         });
@@ -399,8 +413,12 @@ function renderSidebar(tree) {
         return html;
     }
 
-    var html = renderFolderNav('', tree);
-    return html;
+    return `<form class="bd-search d-flex align-items-center" onsubmit="performSearch(); return false;">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                </form>
+                <nav class="collapse bd-links">
+                    ${renderFolderNav('', tree)}
+                </nav>`;
 }
 
 function addFullScreen(selector) {
@@ -434,7 +452,7 @@ function renderNav() {
 
 function renderMenu() {
     var items = mDoc.settings.nav || [];
-    if (items.length === 0) return;
+    if (items.length === 0) return '';
 
     var html = '';
     items.forEach(function (item) {
@@ -469,12 +487,12 @@ function highlightTerm(term, content) {
 }
 
 function getNavText(title) {
-    if (title.lastIndexOf('.md') === title.length -3) {
+    if (title.lastIndexOf('.md') === title.length - 3) {
         title = title.slice(0, -3);
     }
 
-    if (title.indexOf('/') !== -1){
-        title = title.slice(title.lastIndexOf('/')+1);
+    if (title.indexOf('/') !== -1) {
+        title = title.slice(title.lastIndexOf('/') + 1);
     }
 
     if (title.length <= 3) return title.toUpperCase();

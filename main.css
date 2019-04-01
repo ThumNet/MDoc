@@ -343,3 +343,18 @@
     from { opacity: 0; }
     to   { opacity: 1; }
 }
+
+
+@media print {
+
+  .bd-navbar, .bd-sidebar, .bd-toc, .gitlinks {
+    display: none !important;
+  }
+
+  .bd-content {    
+    padding: 2em !important;
+    max-width: 100%;
+    flex: 0 0 100%;
+  }
+
+}

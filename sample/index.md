@@ -24,9 +24,9 @@ in chapters 12--14"). Three dots ... will be converted to an ellipsis.
 Unicode is supported. ☺
 
 
-Waarom niet [other local MD](samples/todo.md)
-Daarom niet [other local MD to hash](samples/todo.md#subkop)
-[Mermaid](samples/mermaid.md)
+Waarom niet [other local MD](files/todo.md)
+Daarom niet [other local MD to hash](files/todo.md#subkop)
+[Mermaid](files/mermaid.md)
 
 An h2 header
 ------------
