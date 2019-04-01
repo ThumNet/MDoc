@@ -329,10 +329,6 @@ function displaySidebar() {
             this.classList.toggle("caret-down");
         });
     }
-
-    if (mDoc.tree) {
-        document.querySelector('form input[type=search]').value = '';
-    }
 }
 
 function renderPrint() {
