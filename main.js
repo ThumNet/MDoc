@@ -258,11 +258,7 @@ function handleError(ex) {
 
 function displayDocs(mdContent) {
     var app = document.getElementById('app');
-    app.classList.add('loaded');
-
-    if (mDoc.tree) {
-        document.querySelector('form input[type=search]').value = '';
-    }
+    app.classList.add('loaded');    
     
     var main = document.getElementById('main');
     main.innerHTML = renderPrint() + renderGitLinks() + marked(mdContent);
@@ -326,14 +322,16 @@ function displayToc() {
 function displaySidebar() {
     document.getElementById('sidebar').innerHTML = renderSidebar(mDoc.tree);
 
-    var toggler = document.getElementsByClassName("caret");
-    var i;
-
-    for (i = 0; i < toggler.length; i++) {
-        toggler[i].addEventListener("click", function () {
+    var togglers = document.getElementsByClassName("caret");
+    for (var i = 0; i < togglers.length; i++) {
+        togglers[i].addEventListener("click", function () {
             this.parentElement.querySelector(".nested").classList.toggle("active");
             this.classList.toggle("caret-down");
         });
+    }
+
+    if (mDoc.tree) {
+        document.querySelector('form input[type=search]').value = '';
     }
 }
 
