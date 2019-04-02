@@ -44,6 +44,7 @@ function loadContent() {
                 return item.Path;
             });
             mDoc.tree = Treeify(mdFiles);
+            displaySidebar();
         })
         .catch(function (error) {
             console.error('Unabled to load contentJson', error);
@@ -263,16 +264,17 @@ function displayDocs(mdContent) {
     var main = document.getElementById('main');
     main.innerHTML = renderPrint() + renderGitLinks() + marked(mdContent);
 
-    setTimeout(initPrism, 1);
-    if (mdContent.indexOf('```mermaid') !== -1) {
-        setTimeout(initMermaid, 1);
-    }
+    setTimeout(function () {
+        initPrism();
+        if (mdContent.indexOf('```mermaid') !== -1) {
+            initMermaid();
+            addFullScreen('div.mermaid');
+        }
 
-    setTimeout(scrollToHash, 5);
-    setTimeout(displayToc, 1);
-    setTimeout(displaySidebar, 1);
-
-    addFullScreen('div.mermaid');
+        scrollToHash();
+        displaySidebar();
+        displayToc();
+    }, 5);
 }
 
 function navigateToHash(e) {
