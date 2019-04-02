@@ -1,7 +1,7 @@
 const { inlineSource } = require('inline-source');
 const fs = require('fs');
 const path = require('path');
-const htmlpath = path.resolve('./index.html');
+const htmlpath = path.resolve('./src/index.html');
 const babel = require('babel-core');
 
 const transformOptions = {
@@ -22,7 +22,7 @@ function transpile(source, context) {
 
 inlineSource(htmlpath, {
     compress: true,
-    rootpath: path.resolve('./'),
+    rootpath: path.resolve('./src'),
     // Skip all css types and png formats
     ignore: ['png'],
     handlers: [transpile]

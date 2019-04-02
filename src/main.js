@@ -1,11 +1,12 @@
 var mDoc = {
-    version: '0.7-beta',
+    version: '0.7',
     settings: {
         startMdFile: 'index.md',
         settingsJson: 'settings.json',
         contentJson: 'content.json',
     },
-    allContent: []
+    allContent: [],
+    isIE11: !!window.MSInputMethodContext && !!document.documentMode
 };
 
 function init() {
@@ -105,7 +106,13 @@ function initMarkedJs() {
     };
 
     renderer.code = function (code, infostring, escaped) {
-        if (infostring === 'mermaid') { return `<div class="mermaid">${code}</div>`; }
+        if (infostring === 'mermaid') { 
+            if (mDoc.isIE11) {
+                return `<div class="alert alert-danger" role="alert">Mermaid is not supported when using Internet Explorer!</div><pre class="language-mermaid"><code>${code}</code></pre>`;
+            }
+            return `<div class="mermaid">${code}</div>`; 
+
+        }
         if (infostring === 'plantuml') { return `<img src="${createPlantUmlImgSource(code)}" />` }
 
         return marked.Renderer.prototype.code.call(this, code, infostring, escaped);
@@ -119,8 +126,8 @@ function initMarkedJs() {
 function createPlantUmlImgSource(umlCode) {
 
     function encode64(data) {
-        r = "";
-        for (i = 0; i < data.length; i += 3) {
+        var r = "";
+        for (var i = 0; i < data.length; i += 3) {
             if (i + 2 == data.length) {
                 r += append3bytes(data.charCodeAt(i), data.charCodeAt(i + 1), 0);
             } else if (i + 1 == data.length) {
@@ -134,11 +141,11 @@ function createPlantUmlImgSource(umlCode) {
     }
 
     function append3bytes(b1, b2, b3) {
-        c1 = b1 >> 2;
-        c2 = ((b1 & 0x3) << 4) | (b2 >> 4);
-        c3 = ((b2 & 0xF) << 2) | (b3 >> 6);
-        c4 = b3 & 0x3F;
-        r = "";
+        var c1 = b1 >> 2;
+        var c2 = ((b1 & 0x3) << 4) | (b2 >> 4);
+        var c3 = ((b2 & 0xF) << 2) | (b3 >> 6);
+        var c4 = b3 & 0x3F;
+        var r = "";
         r += encode6bit(c1 & 0x3F);
         r += encode6bit(c2 & 0x3F);
         r += encode6bit(c3 & 0x3F);
@@ -259,8 +266,8 @@ function handleError(ex) {
 
 function displayDocs(mdContent) {
     var app = document.getElementById('app');
-    app.classList.add('loaded');    
-    
+    app.classList.add('loaded');
+
     var main = document.getElementById('main');
     main.innerHTML = renderPrint() + renderGitLinks() + marked(mdContent);
 
@@ -278,6 +285,8 @@ function displayDocs(mdContent) {
 }
 
 function navigateToHash(e) {
+
+    console.log('HashChange', e.oldURL);
 
     var oldHash = readHash(e.oldURL);
     var newHash = readHash(e.newURL);
@@ -552,6 +561,24 @@ function Treeify(files) {
     return fileTree;
 }
 
+if (!window.HashChangeEvent) { // IE polyfill
+    var lastURL = document.URL;
+    window.addEventListener("hashchange", function (e) {
+        var oldURL = lastURL;
+        var newURL = document.URL;
+        lastURL = newURL;
+        Object.defineProperties(e, {
+            oldURL: { enumerable: true, configurable: true, value: oldURL },
+            newURL: { enumerable: true, configurable: true, value: newURL }
+        });
+    });
+}
+
+if (!String.prototype.repeat) { // IE polyfill
+    String.prototype.repeat = function (num) {
+        return new Array(isNaN(num) ? 1 : ++num).join(this);
+    }
+}
 
 window.addEventListener('hashchange', navigateToHash, false);
 document.addEventListener('DOMContentLoaded', init, false);

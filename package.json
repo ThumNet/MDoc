@@ -7,12 +7,17 @@
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
+    "concurrently": "^4.1.0",
     "http-server": "^0.11.1",
-    "inline-source": "^6.1.9"
+    "inline-source": "^6.1.9",
+    "watch": "^1.0.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "publish": "node build/publish.js"
+    "build": "node build/publish.js",
+    "serve": "http-server ./sample",
+    "watch": "watch \"npm run build\" ./src",
+    "start": "concurrently \"npm:serve\" \"npm:watch\""
   },
   "repository": {
     "type": "git",

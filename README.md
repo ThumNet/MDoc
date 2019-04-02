@@ -14,13 +14,13 @@ Try not using jQuery and code VanillaJS, see [Sans jQuery](https://gist.github.c
 
 
 ### Task list
-- Add warning for <= IE11 when rendering Mermaid
 - Add fullscreen functionality for elements (like tables, images etc)
 - Write documentation about this repo (see [template](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2))
-- Add npm run command to make development easy (eg watch files and transpile?!) 
 
 
 ### Task list done
+- Add npm run command to make development easy (eg watch files and transpile?!) 
+- Add warning for <= IE11 when rendering Mermaid
 - Page not found/error handling
 - Page loading between pages
 - Table striped styling
