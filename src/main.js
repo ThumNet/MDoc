@@ -286,8 +286,6 @@ function displayDocs(mdContent) {
 
 function navigateToHash(e) {
 
-    console.log('HashChange', e.oldURL);
-
     var oldHash = readHash(e.oldURL);
     var newHash = readHash(e.newURL);
     if (newHash && newHash.mdPath) {
@@ -411,7 +409,11 @@ function renderSidebar(tree) {
                 html += `<li><a href="#!${path}${key}" class="${className}" tabindex="-1">${getNavText(key)}</a></li>`;
             } else {
                 var openList = currentMd.indexOf(path + key + '/') === 0;
-                html += `<li><span class="${openList ? 'caret caret-down' : 'caret'}">${getNavText(key)}</span>${renderFolderNav(`${path}${key}/`, children[key])}</li>`;
+                html += `<li>
+                    <span class="${openList ? 'caret caret-down' : 'caret'}">${getNavText(key)}</span>
+                    <button class="admin-only" onclick="viewAll('${path + key + '/'}'); return false;">view all</button>
+                    ${renderFolderNav(`${path}${key}/`, children[key])}
+                </li>`;
             }
         });
         html += '</ul>';
@@ -424,6 +426,29 @@ function renderSidebar(tree) {
                 <nav class="collapse bd-links">
                     ${renderFolderNav('', tree)}
                 </nav>`;
+}
+
+function viewAll(path) {
+
+    var files = mDoc.allContent.filter(function (file) { return file.Path.indexOf(path) === 0; });
+
+    var html = `<h1>Showing all files under: ${path}</h1>`;
+    files.forEach(function (file) {
+        // html += `<p class="text-muted">${file.Path}</p>
+        //         <hr>
+        //          ${marked(file.Contents)}`;
+        html += marked(file.Contents);
+    });
+    var main = document.getElementById('main');
+    main.innerHTML = html;
+
+    setTimeout(function () {
+        initPrism();
+        if (mdContent.indexOf('```mermaid') !== -1) {
+            initMermaid();
+            addFullScreen('div.mermaid');
+        }
+    }, 5);
 }
 
 function addFullScreen(selector) {
@@ -580,5 +605,13 @@ if (!String.prototype.repeat) { // IE polyfill
     }
 }
 
+function listenKeyboard(e) {
+    if (e.shiftKey && e.ctrlKey && e.which === 65) { // CTRL + SHIFT + A
+        var app = document.getElementById('app');
+        app.classList.toggle('admin-mode');
+    }
+} 
+
 window.addEventListener('hashchange', navigateToHash, false);
 document.addEventListener('DOMContentLoaded', init, false);
+document.addEventListener('keyup', listenKeyboard, false);

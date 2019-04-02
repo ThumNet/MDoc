@@ -10,6 +10,9 @@
 
 #app:not(.loaded) * { display: none; }
 
+#app:not(.admin-mode) .admin-only { display: none; }
+#app.admin-mode .admin-only { display: unset; }
+
 
 /* Bootstrap docs ================================ */
 .bd-navbar {
