@@ -89,10 +89,14 @@ function initMarkedJs() {
         // ensure any href to an .md file (eg. ends with '.md' or contains '.md#') 
         // is routed through the hashbang!
         if (/(\.md$)|(\.md#)/.test(href)) {
-            href = '#!' + href;
+            href = '#!' + determineHref(href);
         }
         return marked.Renderer.prototype.link.call(this, href, title, text);
     };
+
+    renderer.image = function (href, title, text) {
+        return marked.Renderer.prototype.image.call(this, determineHref(href), title, text);
+    }
 
     // custom table styling
     renderer.table = function (head, body) {
@@ -106,11 +110,11 @@ function initMarkedJs() {
     };
 
     renderer.code = function (code, infostring, escaped) {
-        if (infostring === 'mermaid') { 
+        if (infostring === 'mermaid') {
             if (mDoc.isIE11) {
                 return `<div class="alert alert-danger" role="alert">Mermaid is not supported when using Internet Explorer!</div><pre class="language-mermaid"><code>${code}</code></pre>`;
             }
-            return `<div class="mermaid">${code}</div>`; 
+            return `<div class="mermaid">${code}</div>`;
 
         }
         if (infostring === 'plantuml') { return `<img src="${createPlantUmlImgSource(code)}" />` }
@@ -121,6 +125,24 @@ function initMarkedJs() {
     marked.setOptions({
         renderer: renderer
     });
+}
+
+function determineHref(href) {
+
+    function dirName(path) {
+        var ix = path.lastIndexOf('/');
+        return ix === -1 ? null : path.substring(0, ix);
+    }
+
+    var isAbsoluteUrl = href && href.indexOf('://') !== -1;
+    var isAbsolutePath = !isAbsoluteUrl && href.indexOf('/') === 0;
+    var currentDir = dirName(readHash(location.hash).mdPath);
+
+    if (isAbsoluteUrl || isAbsolutePath || !currentDir) {
+        return href;
+    }
+
+    return currentDir + '/' + href;
 }
 
 function createPlantUmlImgSource(umlCode) {
@@ -228,6 +250,7 @@ function initPrism() {
 }
 
 function loadMarkdown(mdPath) {
+    console.log('loadMarkdown', mdPath);
     fetch(mdPath)
         .then(fetchStatusHandler)
         .then(function (response) { return response.text() })
@@ -610,7 +633,7 @@ function listenKeyboard(e) {
         var app = document.getElementById('app');
         app.classList.toggle('admin-mode');
     }
-} 
+}
 
 window.addEventListener('hashchange', navigateToHash, false);
 document.addEventListener('DOMContentLoaded', init, false);
