@@ -1,23 +1,27 @@
 {
   "name": "mdoc",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "description": "Is a single page markdown explorer",
-  "main": "index.html",
-  "dependencies": {},
-  "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-preset-env": "^1.7.0",
-    "concurrently": "^4.1.0",
-    "http-server": "^0.11.1",
-    "inline-source": "^6.1.9",
-    "watch": "^1.0.2"
-  },
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "node build/publish.js",
-    "serve": "http-server ./sample",
-    "watch": "watch \"npm run build\" ./src",
-    "start": "concurrently \"npm:serve\" \"npm:watch\""
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "core-js": "^2.6.5",
+    "vue": "^2.6.6",
+    "vue-router": "^3.0.1"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.5.0",
+    "@vue/cli-plugin-eslint": "^3.5.0",
+    "@vue/cli-service": "^3.5.0",
+    "@vue/eslint-config-prettier": "^4.0.1",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.8.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "vue-template-compiler": "^2.5.21"
   },
   "repository": {
     "type": "git",
@@ -32,5 +36,5 @@
   "bugs": {
     "url": "https://github.com/ThumNet/MDoc/issues"
   },
-  "homepage": "https://github.com/ThumNet/MDoc#readme"
+  "homepage": "https://github.com/ThumNet/MDoc"
 }

@@ -13,6 +13,30 @@ Is a single page markdown explorer (see [example](sample/index.html)), inspired 
 Try not using jQuery and code VanillaJS, see [Sans jQuery](https://gist.github.com/joyrexus/7307312)
 
 
+## Project setup
+```
+npm install
+```
+
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
+
+### Compiles and minifies for production
+```
+npm run build
+```
+
+### Lints and fixes files
+```
+npm run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
 ### Task list
 - Add fullscreen functionality for elements (like tables, images etc)
 - Write documentation about this repo (see [template](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2))
