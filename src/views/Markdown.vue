@@ -7,6 +7,8 @@
 </template>
 
 <script>
+import configureMarked from "../lib/configureMarked";
+
 function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {
     return response;
@@ -29,6 +31,7 @@ export default {
       error: null
     };
   },
+
   beforeRouteEnter(to, from, next) {
     fetch(to.path)
       .then(checkStatus)
@@ -40,10 +43,13 @@ export default {
         next(vm => vm.setData(error, null));
       });
   },
+
   // when route changes and this component is already rendered,
   // the logic will be slightly different.
   beforeRouteUpdate(to, from, next) {
     this.content = null;
+    this.error = null;
+
     fetch(to.path)
       .then(checkStatus)
       .then(getText)
@@ -56,20 +62,16 @@ export default {
         next();
       });
   },
+
   methods: {
     setData(err, content) {
       if (err) {
         this.error = err.toString();
       } else {
-        this.content = marked(content);
+        configureMarked();
+        this.content = window.marked(content);
       }
     }
-  }
-  //   mounted: function() {
-  //     console.log("mounted",this.$route.path);
-  //   },
-  //   updated: function() {
-  //       console.log("updated",this.$route.path);
-  //   }
+  }   
 };
 </script>

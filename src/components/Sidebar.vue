@@ -1,6 +1,8 @@
 <template>
   <div>
-    <form class="bd-search d-flex align-items-center" @submit.prevent="performSearch">
+    <form 
+      class="bd-search d-flex align-items-center" 
+      @submit.prevent="performSearch">
       <input
         class="form-control mr-sm-2"
         type="search"
@@ -31,4 +33,3 @@ export default {
   }
 };
 </script>
-
