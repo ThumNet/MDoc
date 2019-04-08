@@ -1,7 +1,7 @@
 <template>
   <div>
     <p>hello from markdown</p>
-    <pre v-if="!error">{{ content }}</pre>
+    <div v-if="!error" v-html="content"></div>
     <pre v-else>{{ error }}</pre>
   </div>
 </template>
@@ -61,7 +61,7 @@ export default {
       if (err) {
         this.error = err.toString();
       } else {
-        this.content = content;
+        this.content = marked(content);
       }
     }
   }
