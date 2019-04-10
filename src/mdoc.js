@@ -6,14 +6,13 @@ import FullscreenHelper from './helpers/fullscreenHelper';
 import Treeify from './helpers/treeHelper';
 
 const MDocConfig = {
-    version: '0.7',
+    version: '0.9',
     settings: {
         startMdFile: 'index.md',
         settingsJson: 'settings.json',
         contentJson: 'content.json',
     },
     allContent: [],
-    isIE11: !!window.MSInputMethodContext && !!document.documentMode
 };
 
 export default class MDoc {
@@ -24,25 +23,21 @@ export default class MDoc {
         document.addEventListener('DOMContentLoaded', this.init.bind(this), false);
         document.addEventListener('keyup', this.listenKeyboard.bind(this), false);
 
-        this.ui = new MDocUI(MDocConfig);
+        this.settings = MDocConfig.settings;
         this.$app = document.getElementById('app');
     }
 
     init() {
-        console.log('init');
-
-        configureMarked(MDocConfig.settings);
+        configureMarked();
         this.loadSettings();
     }
 
     navigateToHash(e) {
-        console.log('navigateToHash', e);
-
-        var oldHash = HashHelper.read(e.oldURL, MDocConfig.settings);
-        var newHash = HashHelper.read(e.newURL, MDocConfig.settings);
+        var oldHash = HashHelper.read(e.oldURL);
+        var newHash = HashHelper.read(e.newURL);
         if (newHash && newHash.mdPath) {
             if (oldHash && oldHash.mdPath === newHash.mdPath && oldHash.scrollTo !== 'mdoc-search') {
-                this.scrollToHash(newHash.scrollTo);
+                this.scrollToHashOrTop(newHash.scrollTo);
                 return;
             }
 
@@ -51,8 +46,6 @@ export default class MDoc {
     }
 
     listenKeyboard(e) {
-        console.log('listenKeyboard', e);
-
         if (e.shiftKey && e.ctrlKey && e.which === 65) { // CTRL + SHIFT + A
             this.$app.classList.toggle('admin-mode');
         }
@@ -115,19 +108,19 @@ export default class MDoc {
             });
         });
     
-        this.$main.innerHTML = this.ui.renderSearch(term, found);
-        location.hash = HashHelper.read(location.hash, MDocConfig.settings).page + '#mdoc-search';
+        this.$main.innerHTML = MDocUI.renderSearch(term, found);
+        location.hash = HashHelper.read(location.hash).page + '#mdoc-search';
     }
 
     displayApp() {
         console.log('displayApp');
-        this.$app.innerHTML = this.ui.renderApp();
+        this.$app.innerHTML = MDocUI.renderApp(MDocConfig.settings.startMdFile);
 
         this.$main = document.getElementById('main');
         this.$toc = document.getElementById('toc');
         this.$sidebar = document.getElementById('sidebar');
 
-        var hash = HashHelper.read(location.hash, MDocConfig.settings);
+        var hash = HashHelper.read(location.hash);
         this.loadMarkdown(hash.mdPath);
 
         this.loadContent();
@@ -137,8 +130,8 @@ export default class MDoc {
         console.log('displayMarkdown');
         this.$app.classList.add('loaded');
 
-        this.$main.innerHTML = this.ui.renderPrint()
-            + this.ui.renderGitLinks()
+        this.$main.innerHTML = MDocUI.renderPrint(MDocConfig.version)
+            + MDocUI.renderGitLinks(MDocConfig.settings.gitRepo)
             + marked(mdContent);
             
         this.triggerMarkownRenderers();
@@ -146,11 +139,11 @@ export default class MDoc {
 
     displayToc() {
         var headers = document.querySelectorAll('#main h2, #main h3');
-        this.$toc.innerHTML = this.ui.renderToc(headers);
+        this.$toc.innerHTML = MDocUI.renderToc(headers);
     }
 
     displaySidebar() {
-        this.$sidebar.innerHTML = this.ui.renderSidebar(MDocConfig.tree);
+        this.$sidebar.innerHTML = MDocUI.renderSidebar(MDocConfig.tree);
 
         var togglers = document.getElementsByClassName("caret");
         for (var i = 0; i < togglers.length; i++) {
@@ -178,11 +171,11 @@ export default class MDoc {
 
     displayError(error) {
         this.$app.classList.add('loaded');
-        this.$main.innerHTML = this.ui.renderError(error);
+        this.$main.innerHTML = MDocUI.renderError(error);
     }
 
     scrollToHashOrTop() {
-        var hash = HashHelper.read(location.hash, MDocConfig.settings);
+        var hash = HashHelper.read(location.hash);
         var elm = this.$app;
         if (hash && hash.scrollTo) {
             elm = document.getElementById(hash.scrollTo);

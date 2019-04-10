@@ -1,6 +1,6 @@
 import HashHelper from './hashHelper';
 
-export default function configureMarked(settings) {
+export default function configureMarked() {
     
     var renderer = new marked.Renderer();
 
@@ -8,13 +8,13 @@ export default function configureMarked(settings) {
         // ensure any href to an .md file (eg. ends with '.md' or contains '.md#') 
         // is routed through the hashbang!
         if (/(\.md$)|(\.md#)/.test(href)) {
-            href = '#!' + determineHref(href, settings);
+            href = '#!' + determineHref(href);
         }
         return marked.Renderer.prototype.link.call(this, href, title, text);
     };
 
     renderer.image = function (href, title, text) {
-        return marked.Renderer.prototype.image.call(this, determineHref(href, settings), title, text);
+        return marked.Renderer.prototype.image.call(this, determineHref(href), title, text);
     }
 
     // custom table styling
@@ -46,7 +46,7 @@ export default function configureMarked(settings) {
     });
 }
 
-function determineHref(href, settings) {
+function determineHref(href) {
 
     function dirName(path) {
         var ix = path.lastIndexOf('/');
@@ -55,7 +55,7 @@ function determineHref(href, settings) {
 
     var isAbsoluteUrl = href && href.indexOf('://') !== -1;
     var isAbsolutePath = !isAbsoluteUrl && href.indexOf('/') === 0;
-    var currentDir = dirName(HashHelper.read(location.hash, settings).mdPath);
+    var currentDir = dirName(HashHelper.read(location.hash).mdPath);
 
     if (isAbsoluteUrl || isAbsolutePath || !currentDir) {
         return href;

@@ -2,12 +2,8 @@ import HashHelper from './helpers/hashHelper';
 
 export default class MDocUI {
 
-    constructor(config) {
-        this.config = config;
-    }
-
-    renderApp() {
-        return `${this.renderNav()}
+    static renderApp(title, nav) {
+        return `${this.renderNav(title, nav)}
             <div class="container-fluid">
                 <div class="row flex-xl-nowrap">
                     <div class="col-12 col-md-3 col-xl-2 bd-sidebar" id="sidebar">                    
@@ -20,21 +16,20 @@ export default class MDocUI {
             </div>`;
     }
 
-    renderNav() {
-        var title = this.config.settings.title || document.title;
+    static renderNav(title, nav) {
         return `
             <header class="navbar navbar-expand navbar-dark flex-column flex-md-row bd-navbar bg-primary">
-                <a class="navbar-brand mr-0 mr-md-2" href="#!" aria-label="MDoc">${title}</a>
+                <a class="navbar-brand mr-0 mr-md-2" href="#!" aria-label="MDoc">${title || document.title}</a>
                 <div class="navbar-nav-scroll">
                     <ul class="navbar-nav flex-row">
-                        ${this.renderMenu()}
+                        ${this.renderMenu(nav)}
                     </ul>
                 </div>
             </header>`;
     }
 
-    renderMenu() {
-        var items = this.config.settings.nav || [];
+    static renderMenu(nav) {
+        var items = nav || [];
         if (items.length === 0) return '';
 
         var html = '';
@@ -48,14 +43,15 @@ export default class MDocUI {
         return html;
     }
 
-    renderPrint() {
-        return `<div class="d-none d-print-block pb-3 text-muted">mDoc v${this.config.version} - Printed from <a href="${location.href}">${location.href}</a> on ${new Date().toLocaleString()}</div>`
+    static renderPrint(version) {
+        return `<div class="d-none d-print-block pb-3 text-muted">mDoc v${version} - Printed from <a href="${location.href}">${location.href}</a> on ${new Date().toLocaleString()}</div>`
     }
 
-    renderGitLinks() {
-        if (!this.config.settings.gitRepo) { return ''; }
-        var repoUrl = this.config.settings.gitRepo;
-        var mdPath = HashHelper.read(location.hash, this.config.settings).mdPath;
+    static renderGitLinks(gitRepo) {
+        if (!gitRepo) { return ''; }
+
+        var repoUrl = gitRepo;
+        var mdPath = HashHelper.read(location.hash).mdPath;
         var editLink, historyLink;
 
         if (repoUrl.indexOf('https://github.com/') === 0) {
@@ -72,10 +68,10 @@ export default class MDocUI {
         </div>`;
     }
 
-    renderToc(headers) {
+    static renderToc(headers) {
         if (!headers.length) { return ''; }
 
-        var page = HashHelper.read(location.hash, this.config.settings).page;
+        var page = HashHelper.read(location.hash).page;
         var currentLevel = 2;
         var html = '<ul class="section-nav">';
         for (var i = 0, len = headers.length; i < len; i++) {
@@ -103,10 +99,10 @@ export default class MDocUI {
         return html;
     }
 
-    renderSidebar(tree) {
+    static renderSidebar(tree) {
         if (!tree) { return ''; }
 
-        var currentMd = HashHelper.read(location.hash, this.config.settings).mdPath;
+        var currentMd = HashHelper.read(location.hash).mdPath;
 
         function renderFolderNav(path, children) {
             var html = path === '' ? '<ul>' : currentMd.indexOf(path) === 0 ? '<ul class="nested active">' : '<ul class="nested">';
@@ -136,7 +132,7 @@ export default class MDocUI {
                     </nav>`;
     }
 
-    renderSearch(term, items) {
+    static renderSearch(term, items) {
         var html = `<h1>Search results</h1>
             <p><strong>${items.length}</strong> results where found for the search for <strong>${term}</strong><p>`;
         items.forEach(function (item) {
@@ -152,7 +148,7 @@ export default class MDocUI {
         return html;
     }
 
-    renderError(error) {
+    static renderError(error) {
         var body = '';
         if (error.response) {
             var res = error.response;
