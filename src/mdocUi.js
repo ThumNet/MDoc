@@ -119,7 +119,7 @@ export default class MDocUI {
                     var openList = currentMd.indexOf(path + key + '/') === 0;
                     html += `<li>
                         <span class="${openList ? 'caret caret-down' : 'caret'}">${getNavText(key)}</span>
-                        <button class="admin-only" onclick="viewAll('${path + key + '/'}'); return false;">view all</button>
+                        <button class="admin-only" onclick="mdoc.displayUnderPath('${path + key + '/'}'); return false;">view all</button>
                         ${renderFolderNav(`${path}${key}/`, children[key])}
                     </li>`;
                 }
@@ -128,7 +128,7 @@ export default class MDocUI {
             return html;
         }
 
-        return `<form class="bd-search d-flex align-items-center" onsubmit="performSearch(); return false;">
+        return `<form class="bd-search d-flex align-items-center" onsubmit="mdoc.performSearch(); return false;">
                         <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
                     </form>
                     <nav class="collapse bd-links">
@@ -150,6 +150,24 @@ export default class MDocUI {
         });
     
         return html;
+    }
+
+    renderError(error) {
+        var body = '';
+        if (error.response) {
+            var res = error.response;
+            var url = res.url.replace(window.origin, '');
+
+            body = `<p>The requested page <strong>${url}</strong> returned ${res.status} - ${res.statusText}</p>`;
+        }
+        else {
+            body = `<p>${error.message}<p><pre>${error.stack}</pre>`;
+        }
+
+        return `<div class="alert alert-danger">
+                <h4 class="alert-heading">Oops something went wrong...</h4>
+                ${body}
+        </div>`;
     }
 
 }

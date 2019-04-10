@@ -33,7 +33,6 @@ export default class MDoc {
 
         configureMarked(MDocConfig.settings);
         this.loadSettings();
-
     }
 
     navigateToHash(e) {
@@ -53,15 +52,17 @@ export default class MDoc {
 
     listenKeyboard(e) {
         console.log('listenKeyboard', e);
+
+        if (e.shiftKey && e.ctrlKey && e.which === 65) { // CTRL + SHIFT + A
+            this.$app.classList.toggle('admin-mode');
+        }
     }
 
     loadSettings() {
         fetch(MDocConfig.settings.settingsJson)
             .then(checkStatus)
             .then(response => response.json())
-            .then(function (mySettings) {
-                MDocConfig.settings = Object.assign(MDocConfig.settings, mySettings);
-            })
+            .then(mySettings => MDocConfig.settings = Object.assign(MDocConfig.settings, mySettings))
             .finally(this.displayApp.bind(this));
     }
 
@@ -81,16 +82,41 @@ export default class MDoc {
             .then(checkStatus)
             .then(response => response.text())
             .then(this.displayMarkdown.bind(this))
-            .catch(this.handleError.bind(this));
+            .catch(this.displayError.bind(this));
     }
 
     handleContent(content) {
         MDocConfig.allContent = content;
-        var mdFiles = content.map(function (item) {
-            return item.Path;
-        });
+        var mdFiles = content.map(item => item.Path);
         MDocConfig.tree = Treeify(mdFiles);
         this.displaySidebar();
+    }
+
+    performSearch() {
+        var termInput = document.querySelector('form input[type=search]');
+        var term = termInput.value;
+        if (term) {
+            this.searchDocs(term);
+            this.displayToc();
+        }
+    }
+
+    searchDocs(term) {
+        var contentSubLength = 80;
+        var found = [];
+    
+        MDocConfig.allContent.forEach(function (item) {
+            var matchIndex = item.Contents.search(new RegExp(term, 'i'));
+            if (matchIndex === -1) { return; }
+    
+            found.push({
+                Path: item.Path,
+                Contents: item.Contents.substring(matchIndex - contentSubLength, matchIndex + contentSubLength)
+            });
+        });
+    
+        this.$main.innerHTML = this.ui.renderSearch(term, found);
+        location.hash = HashHelper.read(location.hash, MDocConfig.settings).page + '#mdoc-search';
     }
 
     displayApp() {
@@ -114,19 +140,8 @@ export default class MDoc {
         this.$main.innerHTML = this.ui.renderPrint()
             + this.ui.renderGitLinks()
             + marked(mdContent);
-
-        if (mdContent.indexOf('```') !== -1) {
-            Prism.highlightAllUnder(this.$main, false);
-        }
-
-        if (mdContent.indexOf('```mermaid') !== -1) {
-            mermaid.init({ startOnLoad: false }, 'div.mermaid');
-            FullscreenHelper.enableFor('div.mermaid');
-        }
-
-        this.scrollToHashOrTop();
-        this.displaySidebar();
-        this.displayToc();
+            
+        this.triggerMarkownRenderers();
     }
 
     displayToc() {
@@ -146,21 +161,24 @@ export default class MDoc {
         }
     }
 
-    handleError(error) {
+    displayUnderPath(path) {
+        var files = MDocConfig.allContent.filter(file => file.Path.indexOf(path) === 0);
+
+        var html = `<h1>Showing all files under: ${path}</h1>`;
+        files.forEach(function (file) {
+            // html += `<p class="text-muted">${file.Path}</p>
+            //         <hr>
+            //          ${marked(file.Contents)}`;
+            html += marked(file.Contents);
+        });
+        this.$main.innerHTML = html;
+
+        this.triggerMarkownRenderers();
+    }
+
+    displayError(error) {
         this.$app.classList.add('loaded');
-
-        var body = '';
-        if (error.response) {
-            var res = error.response;
-            var url = res.url.replace(window.origin, '');
-
-            body = `<p>The requested page <strong>${url}</strong> returned ${res.status} - ${res.statusText}</p>`;
-        }
-        else {
-            body = `<p>${error.message}<p><pre>${error.stack}</pre>`;
-        }
-
-        this.$main.innerHTML = `<div class="alert alert-danger"><h4 class="alert-heading">Oops something went wrong...</h4>${body}</div>`;
+        this.$main.innerHTML = this.ui.renderError(error);
     }
 
     scrollToHashOrTop() {
@@ -171,5 +189,20 @@ export default class MDoc {
         }
 
         elm.scrollIntoView(true);
+    }
+
+    triggerMarkownRenderers() {
+        if (this.$main.innerHTML.indexOf('<code class="') !== -1) {
+            Prism.highlightAllUnder(this.$main, false);
+        }
+
+        if (this.$main.innerHTML.indexOf('<div class="mermaid"') !== -1) {
+            mermaid.init({ startOnLoad: false }, 'div.mermaid');
+            FullscreenHelper.enableFor('div.mermaid');
+        }
+
+        this.scrollToHashOrTop();
+        this.displaySidebar();
+        this.displayToc();
     }
 }

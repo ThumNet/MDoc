@@ -1,10 +1,22 @@
-
 import MDoc from "./mdoc";
 
+window.mdoc = new MDoc();
 
-var mdoc = new MDoc();
+if (!window.HashChangeEvent) { // IE polyfill
+    var lastURL = document.URL;
+    window.addEventListener("hashchange", function (e) {
+        var oldURL = lastURL;
+        var newURL = document.URL;
+        lastURL = newURL;
+        Object.defineProperties(e, {
+            oldURL: { enumerable: true, configurable: true, value: oldURL },
+            newURL: { enumerable: true, configurable: true, value: newURL }
+        });
+    });
+}
 
-
-const arr = [1, 2, 3];
-const iAmJavascriptES6 = () => console.log(...arr);
-window.iAmJavascriptES6 = iAmJavascriptES6;
+if (!String.prototype.repeat) { // IE polyfill
+    String.prototype.repeat = function (num) {
+        return new Array(isNaN(num) ? 1 : ++num).join(this);
+    }
+}
