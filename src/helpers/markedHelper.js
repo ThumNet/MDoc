@@ -17,6 +17,14 @@ export default function configureMarked() {
         return marked.Renderer.prototype.image.call(this, determineHref(href), title, text);
     }
 
+    renderer.paragraph = function (text) {
+        var alert = readAlert(text);
+        if (alert) {
+            return `<p class="alert ${alert.className}">${text}</p>\n`;
+        }
+        return marked.Renderer.prototype.paragraph.call(this, text);
+    }
+
     // custom table styling
     renderer.table = function (head, body) {
         if (body) body = `<tbody>${body}</tbody>`;
@@ -113,6 +121,27 @@ function createPlantUmlImgSource(umlCode) {
     }
 
     return 'http://www.plantuml.com/plantuml/img/' + compress(umlCode);
+}
+
+function readAlert(text) {
+
+    var alertTypes = [ 
+        { trigger: 'hint', className: 'alert-success' },
+        { trigger: 'tip', className: 'alert-success' },
+        { trigger: 'attention', className: 'alert-warning' },
+        { trigger: 'warning', className: 'alert-warning' },
+        { trigger: 'note', className: 'alert-info' },
+        { trigger: 'danger', className: 'alert-danger' },
+    ];
+
+    for (var i=0, len=alertTypes.length; i<len; i++) {
+        var r = new RegExp(`^${alertTypes[i].trigger}(:|!)+.*`, 'i');
+        if (text.match(r)) {
+            return alertTypes[i];
+        }
+    }
+
+    return null;
 }
 
 function isIE11() {

@@ -1,6 +1,6 @@
 {
   "name": "mdoc",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "description": "Is a single page markdown explorer",
   "dependencies": {},
   "devDependencies": {

@@ -6,7 +6,7 @@ import FullscreenHelper from './helpers/fullscreenHelper';
 import Treeify from './helpers/treeHelper';
 
 const MDocConfig = {
-    version: '0.9',
+    version: '1.0',
     settings: {
         startMdFile: 'index.md',
         settingsJson: 'settings.json',
