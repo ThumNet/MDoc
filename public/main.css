@@ -16,7 +16,7 @@
 
 .table-hover tbody tr:hover {
   color: var(--white);
-  background-color: var(--success);
+  background-color: var(--dark);
 }
 
 
