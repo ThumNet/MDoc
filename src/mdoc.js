@@ -113,8 +113,8 @@ export default class MDoc {
     }
 
     displayApp() {
-        console.log('displayApp');
-        this.$app.innerHTML = MDocUI.renderApp(MDocConfig.settings.startMdFile);
+        this.$app.innerHTML = MDocUI.renderApp(MDocConfig.settings.title, 
+            MDocConfig.settings.nav, MDocConfig.version);
 
         this.$main = document.getElementById('main');
         this.$toc = document.getElementById('toc');
@@ -127,7 +127,6 @@ export default class MDoc {
     }
 
     displayMarkdown(mdContent) {
-        console.log('displayMarkdown');
         this.$app.classList.add('loaded');
 
         this.$main.innerHTML = MDocUI.renderPrint(MDocConfig.version)
