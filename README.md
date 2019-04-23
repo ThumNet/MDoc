@@ -13,8 +13,11 @@ Is a single page markdown explorer (see [example](sample/index.html)), inspired 
 Try not using jQuery and code VanillaJS, see [Sans jQuery](https://gist.github.com/joyrexus/7307312)
 
 
+## Credits
+- Original MDWiki - [Site](http://dynalon.github.io/mdwiki/#!index.md)
+- Favicon - [Markdown Here](https://markdown-here.com/)
+
 ### Task list
-- Add fullscreen functionality for elements (like tables, images etc)
 - Write documentation about this repo (see [template](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2))
 
 
@@ -24,7 +27,7 @@ Try not using jQuery and code VanillaJS, see [Sans jQuery](https://gist.github.c
 - Page not found/error handling
 - Page loading between pages
 - Table striped styling
-- Fullscreen viewing (mermaid)
+- Fullscreen viewing (mermaid, tables)
 - Table Of Contents links
 - Make the top nav sticky (or create different navigation)
 - Support Bootswatch themes
@@ -33,3 +36,4 @@ Try not using jQuery and code VanillaJS, see [Sans jQuery](https://gist.github.c
 - Create build for one html file
 - Transpile inline js
 - Add print style sheet
+- Add favicon

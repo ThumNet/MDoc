@@ -6,7 +6,7 @@ import FullscreenHelper from './helpers/fullscreenHelper';
 import Treeify from './helpers/treeHelper';
 
 const MDocConfig = {
-    version: '1.0',
+    version: '1.1',
     settings: {
         startMdFile: 'index.md',
         settingsJson: 'settings.json',
@@ -192,6 +192,8 @@ export default class MDoc {
             mermaid.init({ startOnLoad: false }, 'div.mermaid');
             FullscreenHelper.enableFor('div.mermaid');
         }
+
+        FullscreenHelper.enableFor('table.table-striped thead', 'table.table-striped')
 
         this.scrollToHashOrTop();
         this.displaySidebar();

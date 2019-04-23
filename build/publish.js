@@ -7,7 +7,7 @@ inlineSource(htmlpath, {
     compress: true,
     rootpath: path.resolve('./dist'),
     // Skip all css types and png formats
-    ignore: ['png']
+    // ignore: ['png']
 }).then(html => {
     // Do something with html
     //console.log(html);

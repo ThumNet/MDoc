@@ -8,6 +8,9 @@
 .mermaid:not([data-processed]) { display: none; }
 .mermaid:-webkit-full-screen { cursor: zoom-out; }
 
+.table-striped thead { cursor: zoom-in; }
+.table-striped:-webkit-full-screen thead { cursor: zoom-out; }
+
 #app:not(.loaded) * { display: none; }
 
 #app:not(.admin-mode) .admin-only { display: none; }

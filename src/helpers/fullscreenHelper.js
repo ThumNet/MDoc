@@ -1,14 +1,14 @@
 export default class FullscreenHelper {
-    static enableFor(selector) {
+    static enableFor(selector, fullscreenSelector) {
 
         [].forEach.call(document.querySelectorAll(selector), function (el) {
             el.addEventListener('click', function () {
-                // code…
                 if (RunPrefixMethod(document, "FullScreen") || RunPrefixMethod(document, "IsFullScreen")) {
                     RunPrefixMethod(document, "CancelFullScreen");
                 }
                 else {
-                    RunPrefixMethod(el, "RequestFullScreen");
+                    var fullscreenElm = fullscreenSelector ? el.closest(fullscreenSelector) : el;
+                    RunPrefixMethod(fullscreenElm, "RequestFullScreen");
                 }
             })
         });
