@@ -2,6 +2,8 @@ import HashHelper from './hashHelper';
 
 export default function configureMarked() {
     
+    // See: https://github.com/markedjs/marked/blob/master/lib/marked.js
+
     var renderer = new marked.Renderer();
 
     renderer.link = function (href, title, text) {
@@ -23,6 +25,18 @@ export default function configureMarked() {
             return `<p class="alert ${alert.className}">${text}</p>\n`;
         }
         return marked.Renderer.prototype.paragraph.call(this, text);
+    }
+
+    renderer.heading = function (text, level, raw, slugger) {
+        var id = this.options.headerPrefix + slugger.slug(raw);
+        var currentPage = HashHelper.read(location.hash).mdPath;
+
+        return `<h${level} id="${id}">
+                    <span class="bd-content-title">
+                        ${text}
+                        <a class="anchorjs-link" href="#!${currentPage}#${id}" data-anchorjs-icon="#"></a>
+                    </span>
+                </h${level}>\n`;
     }
 
     // custom table styling

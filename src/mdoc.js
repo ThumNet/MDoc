@@ -50,6 +50,13 @@ export default class MDoc {
 
     listenKeyboard(e) {
         if (e.shiftKey && e.ctrlKey && e.which === 65) { // CTRL + SHIFT + A
+            
+            if (this.$app.classList.contains('admin-mode')) {
+                this.scrollToHashOrTop();
+            } else {
+                document.body.scrollTop = document.documentElement.scrollTop = 0;
+            }
+            
             this.$app.classList.toggle('admin-mode');
         }
     }
@@ -59,9 +66,8 @@ export default class MDoc {
         var headerElms = [...document.querySelectorAll('#main h2, #main h3')];
         if (!headerElms.length) { return; }
 
-        var navbarOffset = document.querySelector('header').offsetHeight;
         var current = document.querySelector('.toc-entry a.font-weight-bold');
-        var activateHeader = headerElms.filter(h => h.offsetTop - navbarOffset <= scrollPosition).pop();
+        var activateHeader = headerElms.filter(h => h.offsetTop <= scrollPosition).pop();
 
         if (!activateHeader || current && current.href.endsWith('#' + activateHeader.id)) { return; }
         
