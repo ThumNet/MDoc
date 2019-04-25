@@ -6,7 +6,7 @@ import FullscreenHelper from './helpers/fullscreenHelper';
 import Treeify from './helpers/treeHelper';
 
 const MDocConfig = {
-    version: '1.2',
+    version: '1.3',
     settings: {
         startMdFile: 'index.md',
         settingsJson: 'settings.json',
@@ -23,6 +23,7 @@ export default class MDoc {
         window.addEventListener('hashchange', this.navigateToHash.bind(this), false);
         document.addEventListener('DOMContentLoaded', this.init.bind(this), false);
         document.addEventListener('keyup', this.listenKeyboard.bind(this), false);
+        document.addEventListener('scroll', this.listenScroll.bind(this), false);
 
         this.settings = MDocConfig.settings;
         this.$app = document.getElementById('app');
@@ -53,6 +54,21 @@ export default class MDoc {
         }
     }
 
+    listenScroll() {
+        var scrollPosition = document.documentElement.scrollTop || document.body.scrollTop;
+        var headerElms = [...document.querySelectorAll('#main h2, #main h3')];
+        if (!headerElms.length) { return; }
+
+        var navbarOffset = document.querySelector('header').offsetHeight;
+        var current = document.querySelector('.toc-entry a.font-weight-bold');
+        var activateHeader = headerElms.filter(h => h.offsetTop - navbarOffset <= scrollPosition).pop();
+
+        if (!activateHeader || current && current.href.endsWith('#' + activateHeader.id)) { return; }
+        
+        if (current) { current.classList.toggle('font-weight-bold'); }
+        document.querySelector('.toc-entry a[href$="#' + activateHeader.id + '"]').classList.add('font-weight-bold');
+    }
+
     loadSettings() {
         fetch(MDocConfig.settings.settingsJson)
             .then(checkStatus)
@@ -73,10 +89,9 @@ export default class MDoc {
 
     loadTheme() {
         var themeName = localStorage.getItem('themeName') || MDocConfig.settings.defaultTheme;
-        
+
         var link = document.getElementById('themeLink');
-        if (link)
-        {
+        if (link) {
             // TODO validate themeName against constant
             link.href = this.getThemeUrl(themeName);
             return;
@@ -118,23 +133,23 @@ export default class MDoc {
     searchDocs(term) {
         var contentSubLength = 80;
         var found = [];
-    
+
         MDocConfig.allContent.forEach(function (item) {
             var matchIndex = item.Contents.search(new RegExp(term, 'i'));
             if (matchIndex === -1) { return; }
-    
+
             found.push({
                 Path: item.Path,
                 Contents: item.Contents.substring(matchIndex - contentSubLength, matchIndex + contentSubLength)
             });
         });
-    
+
         this.$main.innerHTML = MDocUI.renderSearch(term, found);
         location.hash = HashHelper.read(location.hash).page + '#mdoc-search';
     }
 
     displayApp() {
-        this.$app.innerHTML = MDocUI.renderApp(MDocConfig.settings.title, 
+        this.$app.innerHTML = MDocUI.renderApp(MDocConfig.settings.title,
             MDocConfig.settings.nav, MDocConfig.version);
 
         this.$main = document.getElementById('main');
@@ -153,7 +168,7 @@ export default class MDoc {
         this.$main.innerHTML = MDocUI.renderPrint(MDocConfig.version)
             + MDocUI.renderGitLinks(MDocConfig.settings.gitRepo)
             + marked(mdContent);
-            
+
         this.triggerMarkownRenderers();
     }
 
@@ -206,7 +221,7 @@ export default class MDoc {
 
     setTheme(themeName) {
         localStorage.setItem('themeName', themeName);
-        this.loadTheme();        
+        this.loadTheme();
     }
 
     resetTheme() {
@@ -215,7 +230,7 @@ export default class MDoc {
     }
 
     getThemeUrl(themeName) {
-        return `https://netdna.bootstrapcdn.com/bootswatch/4.3.1/${themeName.toLowerCase()}/bootstrap.min.css`;        
+        return `https://netdna.bootstrapcdn.com/bootswatch/4.3.1/${themeName.toLowerCase()}/bootstrap.min.css`;
     }
 
     triggerMarkownRenderers() {

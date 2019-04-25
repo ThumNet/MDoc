@@ -39,3 +39,4 @@ Try not using jQuery and code VanillaJS, see [Sans jQuery](https://gist.github.c
 - Add print style sheet
 - Add favicon
 - Add theming (see [Bootswatch](https://bootswatch.com/))
+- Add highlighting of current ToC item
