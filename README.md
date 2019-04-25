@@ -5,8 +5,8 @@ Is a single page markdown explorer (see [example](sample/index.html)), inspired 
 ## How to use
 
 1. Copy the `index.html` from the [dist folder](dist/index.html) to the root of your Markdown folder
-2. (Optional) Create and configure a `settings.json` file (see [sample/settings.json]())
-3. (Optional) For File-tree and Search functionality - Run the [sample/Create-ContentJson.ps1]() file during your build process this creates a `content.json` file and place this in the Markdown folder root.
+2. (Optional) Create and configure a `settings.json` file (see [dist/settings.json]())
+3. (Optional) For File-tree and Search functionality - Run the [dist/Create-ContentJson.ps1]() file during your build process this creates a `content.json` file and place this in the Markdown folder root.
 
 
 ## no jQuery
