@@ -7,6 +7,7 @@ Is a single page markdown explorer (see [example](sample/index.html)), inspired 
 1. Copy the `index.html` from the [dist folder](dist/index.html) to the root of your Markdown folder
 2. (Optional) Create and configure a `settings.json` file (see [dist/settings.json](dist/settings.json))
 3. (Optional) For File-tree and Search functionality - Run the [dist/Create-ContentJson.ps1](dist/Create-ContentJson.ps1) file during your build process this creates a `content.json` file and place this in the Markdown folder root.
+4. Try pressing `CTRL+SHIFT+A` to engage 'admin mode', for theme selection and displaying all files under a folder.
 
 
 ## no jQuery
@@ -37,3 +38,4 @@ Try not using jQuery and code VanillaJS, see [Sans jQuery](https://gist.github.c
 - Transpile inline js
 - Add print style sheet
 - Add favicon
+- Add theming (see [Bootswatch](https://bootswatch.com/))

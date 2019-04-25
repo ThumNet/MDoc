@@ -6,11 +6,12 @@ import FullscreenHelper from './helpers/fullscreenHelper';
 import Treeify from './helpers/treeHelper';
 
 const MDocConfig = {
-    version: '1.1',
+    version: '1.2',
     settings: {
         startMdFile: 'index.md',
         settingsJson: 'settings.json',
         contentJson: 'content.json',
+        defaultTheme: 'flatly',
     },
     allContent: [],
 };
@@ -30,6 +31,7 @@ export default class MDoc {
     init() {
         configureMarked();
         this.loadSettings();
+        this.loadTheme();
     }
 
     navigateToHash(e) {
@@ -67,6 +69,25 @@ export default class MDoc {
             .catch(function (error) {
                 console.error('Unabled to load contentJson', error);
             });
+    }
+
+    loadTheme() {
+        var themeName = localStorage.getItem('themeName') || MDocConfig.settings.defaultTheme;
+        
+        var link = document.getElementById('themeLink');
+        if (link)
+        {
+            // TODO validate themeName against constant
+            link.href = this.getThemeUrl(themeName);
+            return;
+        }
+
+        var link = document.createElement('link');
+        link.id = 'themeLink';
+        link.rel = 'stylesheet';
+        link.href = this.getThemeUrl(themeName);
+        var afterNode = document.querySelector('link[rel="icon"]');
+        afterNode.parentNode.insertBefore(link, afterNode.nextSibling);
     }
 
     loadMarkdown(mdPath) {
@@ -181,6 +202,20 @@ export default class MDoc {
         }
 
         elm.scrollIntoView(true);
+    }
+
+    setTheme(themeName) {
+        localStorage.setItem('themeName', themeName);
+        this.loadTheme();        
+    }
+
+    resetTheme() {
+        localStorage.removeItem('themeName');
+        this.loadTheme();
+    }
+
+    getThemeUrl(themeName) {
+        return `https://netdna.bootstrapcdn.com/bootswatch/4.3.1/${themeName.toLowerCase()}/bootstrap.min.css`;        
     }
 
     triggerMarkownRenderers() {

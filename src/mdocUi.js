@@ -1,10 +1,22 @@
 import HashHelper from './helpers/hashHelper';
 
+const themes = [
+    'Cerulean', 'Cosmo', 'Cyborg', 'Darkly', 'Flatly', 'Journal',
+    'Litera', 'Lumen', 'Lux', 'Materia', 'Minty', 'Pulse',
+    'Sandstone', 'Simplex', 'Sketchy', 'Slate', 'Solar', 'Spacelab',
+    'Superhero', 'United', 'Yeti'
+];
+
 export default class MDocUI {
 
     static renderApp(title, nav, version) {
         return `${this.renderNav(title, nav, version)}
             <div class="container-fluid">
+                <div class="row flex-xl-nowrap admin-only">
+                    <div class="col-12">
+                        ${this.renderThemes()}
+                    </div>
+                </div>
                 <div class="row flex-xl-nowrap">
                     <div class="col-12 col-md-3 col-xl-2 bd-sidebar" id="sidebar">                    
                     </div>
@@ -167,6 +179,15 @@ export default class MDocUI {
                 <h4 class="alert-heading">Oops something went wrong...</h4>
                 ${body}
         </div>`;
+    }
+
+    static renderThemes() {
+        var html = '<h4>Select a theme</h4>';
+        themes.forEach(t => {
+            html += ` <button type="button" class="btn btn-outline-primary mt-1" onclick="mdoc.setTheme('${t.toLowerCase()}')">${t}</button>`
+        });
+        html += ` <button type="button" class="btn btn-outline-secondary mt-1" onclick="mdoc.resetTheme()">Reset</button>`
+        return html;
     }
 
 }
