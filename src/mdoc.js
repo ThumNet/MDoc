@@ -6,7 +6,7 @@ import FullscreenHelper from './helpers/fullscreenHelper';
 import Treeify from './helpers/treeHelper';
 
 const MDocConfig = {
-    version: '1.3',
+    version: '1.3.1',
     settings: {
         startMdFile: 'index.md',
         settingsJson: 'settings.json',
@@ -113,6 +113,9 @@ export default class MDoc {
 
     loadMarkdown(mdPath) {
         console.log('loadMarkdown', mdPath);
+
+        document.title = `${MDocUI.getPrettyFilename(mdPath)} - ${MDocConfig.settings.title || 'MDocn'}`;
+
         fetch(mdPath)
             .then(checkStatus)
             .then(response => response.text())
@@ -229,7 +232,7 @@ export default class MDoc {
         localStorage.setItem('themeName', themeName);
         this.loadTheme();
     }
-
+    
     resetTheme() {
         localStorage.removeItem('themeName');
         this.loadTheme();

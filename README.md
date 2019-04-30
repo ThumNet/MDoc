@@ -19,6 +19,7 @@ Try not using jQuery and code VanillaJS, see [Sans jQuery](https://gist.github.c
 - Favicon - [Markdown Here](https://markdown-here.com/)
 
 ### Task list
+- Write documentation about the settings.json
 - Write documentation about this repo (see [template](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2))
 
 

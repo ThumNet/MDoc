@@ -190,6 +190,10 @@ export default class MDocUI {
         return html;
     }
 
+    static getPrettyFilename(mdPath) {
+        return getNavText(mdPath);
+    }
+
 }
 
 function highlightTerm(term, content) {
