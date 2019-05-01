@@ -142,10 +142,11 @@
   display: block;
 }
 
-.toc-entry a {
-  display: block;
-  padding: .125rem 1.5rem;
-}
+.toc-h1 { padding-left: 0.2rem !important; }
+.toc-h2 { padding-left: 1.2rem !important; }
+.toc-h3 { padding-left: 2.4rem !important; }
+.toc-h4 { padding-left: 3.6rem !important; }
+.toc-h5 { padding-left: 4.8rem !important; }
 
 .bd-sidebar {
   -ms-flex-order: 0;

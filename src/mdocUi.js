@@ -87,30 +87,16 @@ export default class MDocUI {
         if (!headers.length) { return ''; }
 
         var page = HashHelper.read(location.hash).page;
-        var currentLevel = 2;
-        var html = '<ul class="section-nav">';
+        var html = '<div class="section-nav">';
+
         for (var i = 0, len = headers.length; i < len; i++) {
             var level = parseInt(headers[i].tagName.substring(1));
-            var levelNext = i < len - 1 ? parseInt(headers[i + 1].tagName.substring(1)) : level;
-
-            html += `<li class="toc-entry toc-h${level}">
-                        <a href="${page}#${headers[i].id}" tabindex="-1">${headers[i].textContent}</a>`;
-
-            if (level === levelNext) {
-                html += '</li>';
-            } else if (levelNext > level) {
-                html += '<ul>';
-            } else {
-                html += '</li></ul>';
-            }
-            currentLevel = level;
+            html += `<span class="toc-entry toc-h${level}">
+                <a href="${page}#${headers[i].id}" tabindex="-1">${headers[i].textContent}</a>
+            </span>`;
         }
 
-        if (currentLevel > 2) {
-            html += '</ul>'.repeat(currentLevel - 2);
-        }
-
-        html += '</ul>';
+        html += '</div>';
         return html;
     }
 
